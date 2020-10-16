@@ -107,7 +107,7 @@ func (p *BaseService) GetByKey(key string, retModal interface{}) error {
 
 func (p *BaseService) GetStringByKey(key string) string {
 	redisValue, err := p.App.RedisClient.Get(key).Result()
-	if err != nil {
+	if err != nil && err.Error() != redis.Nil.Error(){
 		log.Logger().Errorf("redis get key:%s,err:%+v", key, err)
 		return ""
 	}
@@ -131,6 +131,17 @@ func (p *BaseService) SetByKey(key string, saveModal interface{}) error {
 	_, err := p.App.RedisClient.Set(key, str2, 0).Result()
 	if err != nil {
 		log.Logger().Errorf("redis save key:%s,value:%s  err:%+v", key, str2, err)
+		return err
+	}
+	return nil
+}
+
+//统一存储redis
+func (p *BaseService) SetStringByKey(key string, saveModal string) error {
+	//logger.Debug("redis save hash:%s  key:%s,value:%s", hash,key, str2)
+	_, err := p.App.RedisClient.Set(key, saveModal, 0).Result()
+	if err != nil {
+		log.Logger().Errorf("redis save key:%s,value:%s  err:%+v", key, saveModal, err)
 		return err
 	}
 	return nil
