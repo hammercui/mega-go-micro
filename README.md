@@ -6,3 +6,11 @@
 ```
 go get github.com/hammercui/mega-go-micro
 ```
+
+### FAQ
+
+1 etcd err:
+go mod 使用gprc 1.26.0
+```
+replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
+```
