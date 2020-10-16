@@ -16,7 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"path"
 	"time"
-	"wfServerMicro/infra/conf"
+	"github.com/hammercui/mega-go-micro/conf"
 )
 
 func getWriteAllFileHook() *lfshook.LfsHook {

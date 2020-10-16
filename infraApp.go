@@ -13,12 +13,12 @@ import (
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/registry"
 	"gorm.io/gorm"
-	"wfServerMicro/infra/conf"
-	"wfServerMicro/infra/log"
-	"wfServerMicro/infra/mysql"
-	infraRedis "wfServerMicro/infra/redis"
-	infraBroker "wfServerMicro/infra/broker"
-	"wfServerMicro/infra/registry/consul"
+	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/log"
+	"github.com/hammercui/mega-go-micro/mysql"
+	infraRedis "github.com/hammercui/mega-go-micro/redis"
+	infraBroker "github.com/hammercui/mega-go-micro/broker"
+	"github.com/hammercui/mega-go-micro/registry/consul"
 )
 
 type InfraApp struct {

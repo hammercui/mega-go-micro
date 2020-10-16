@@ -15,7 +15,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-	"wfServerMicro/infra/log"
+	"github.com/hammercui/mega-go-micro/log"
 )
 
 //从body获得json v2版本

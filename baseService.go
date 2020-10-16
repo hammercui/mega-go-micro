@@ -12,7 +12,7 @@ import (
 	"encoding/json"
 	"github.com/go-redis/redis"
 	"reflect"
-	"wfServerMicro/infra/log"
+	"github.com/hammercui/mega-go-micro/log"
 )
 
 type BaseService struct {

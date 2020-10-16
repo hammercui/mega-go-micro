@@ -15,8 +15,8 @@ import (
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-plugins/broker/kafka/v2"
 	"time"
-	"wfServerMicro/infra/conf"
-	"wfServerMicro/infra/log"
+	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/log"
 )
 
 func NewKafkaBroker() broker.Broker {

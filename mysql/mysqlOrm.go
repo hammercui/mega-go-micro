@@ -7,8 +7,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	"os"
-	"wfServerMicro/infra/conf"
-	"wfServerMicro/infra/log"
+	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/log"
 )
 
 var readOnlyDB, readWriteDB *gorm.DB

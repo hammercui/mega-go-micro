@@ -14,7 +14,7 @@ import (
 	lr "github.com/micro/go-plugins/logger/logrus/v2"
 	"github.com/sirupsen/logrus"
 	"os"
-	"wfServerMicro/infra/conf"
+	"github.com/hammercui/mega-go-micro/conf"
 )
 
 var logrusSingle *logrus.Entry

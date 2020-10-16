@@ -15,7 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"log"
 	"time"
-	"wfServerMicro/infra/conf"
+	"github.com/hammercui/mega-go-micro/conf"
 )
 
 type KafkaHook struct {

@@ -15,8 +15,8 @@ import (
 	"context"
 	gormLogger "gorm.io/gorm/logger"
 	"time"
-	"wfServerMicro/infra/conf"
-	infraLog "wfServerMicro/infra/log"
+	"github.com/hammercui/mega-go-micro/conf"
+	infraLog "github.com/hammercui/mega-go-micro/log"
 )
 
 func NewGormLog(env conf.AppEnv) *logger {

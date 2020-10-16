@@ -4,7 +4,7 @@ import (
 	"errors"
 	"gorm.io/gorm"
 	"reflect"
-	"wfServerMicro/infra/log"
+	"github.com/hammercui/mega-go-micro/log"
 )
 
 type BaseDao struct {
