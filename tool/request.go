@@ -14,6 +14,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
 	"time"
 	"github.com/hammercui/mega-go-micro/log"
 )
@@ -25,9 +28,8 @@ func ReadPostJsonV2(c *gin.Context) []byte {
 }
 
 func PostJson(url string, v interface{},out interface{}) error  {
-
 	//默认值
-	timeout := 30 * time.Second
+	timeout := 10 * time.Second
 
 	//大于配置毫秒，按传值计算
 	//if (millSec > int(conf.Config.Server.PhpTimeOut)) {
@@ -66,6 +68,56 @@ func PostJson(url string, v interface{},out interface{}) error  {
 		log.Logger().Error("request do err:%+v", err)
 		return err
 	}
+	//http !=200
+	if (resp.StatusCode != http.StatusOK) {
+		log.Logger().Error("request do err: statusCode=%d", resp.StatusCode)
+		return err
+	}
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	if err := resp.Body.Close(); err != nil {
+		log.Logger().Error("resp.Body close err:%+v", err)
+		return err
+	}
+	if err != nil {
+		log.Logger().Error("respBytes err:%+v", err)
+		return err
+	}
+	log.Logger().Infof("http response<--: %s", string(respBytes))
+	//byte数组直接转成string，优化内存
+	//str := (*string)(unsafe.Pointer(&respBytes))
+	if(out == nil){
+		return nil
+	}
+	err = json.Unmarshal(respBytes, out)
+	if err != nil {
+		log.Logger().Error("json Unmarshal err", err)
+		return err;
+	}
+	return nil
+
+}
+
+//请求表单
+func PostForm(urlStr string, data url.Values,out interface{}) error  {
+	//默认值
+	timeout := 10 * time.Second
+	log.Logger().Infof("http request-->: url[%s]", urlStr)
+	log.Logger().Info("http request->:timeout", timeout)
+	client := &http.Client{
+		Timeout: timeout,
+	}
+	reqBody := strings.NewReader(data.Encode())
+	r, _ := http.NewRequest("POST", urlStr, reqBody) // URL-encoded payload
+	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
+	log.Logger().Info("http request->:body", data)
+
+	resp, err := client.Do(r)
+	if err != nil {
+		log.Logger().Error("request do err: ", err)
+		return err
+	}
+	defer resp.Body.Close()
 	//http !=200
 	if (resp.StatusCode != http.StatusOK) {
 		log.Logger().Error("request do err: statusCode=%d", resp.StatusCode)
