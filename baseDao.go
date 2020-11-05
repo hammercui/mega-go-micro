@@ -30,6 +30,7 @@ func (p *BaseDao) GetReadWriteDB() *gorm.DB {
 	return app.ReadWriteDB
 }
 
+//查询struct对象
 func (p *BaseDao) SelectOne(out interface{}, sqlStr string, values ...interface{}) error {
 	type1 := reflect.TypeOf(out)
 	if type1.Kind() != reflect.Ptr {
@@ -46,6 +47,7 @@ func (p *BaseDao) SelectOne(out interface{}, sqlStr string, values ...interface{
 	return nil
 }
 
+//查询struct列表
 func (p *BaseDao) SelectAll(outs interface{}, sqlStr string, values ...interface{}) error {
 	type1 := reflect.TypeOf(outs)
 	if type1.Kind() != reflect.Ptr {

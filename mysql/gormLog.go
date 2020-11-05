@@ -21,10 +21,10 @@ import (
 
 func NewGormLog(env conf.AppEnv) *logger {
 	//执行超过5ms报警
-	slowThresHold := 7 * time.Millisecond
+	slowThresHold := 10 * time.Millisecond
 	if env == conf.AppEnv_prod {
 		//生产超过1ms报警
-		slowThresHold = 5 * time.Millisecond
+		slowThresHold = 10 * time.Millisecond
 	}
 	return &logger{
 		SlowThreshold: slowThresHold,
