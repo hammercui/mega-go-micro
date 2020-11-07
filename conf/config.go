@@ -16,6 +16,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 )
 
 type AppEnv string
@@ -38,16 +39,16 @@ type Config struct {
 
 //应用配置
 type AppConf struct {
-	Group       string            `toml:"group"`
-	Name        string            `toml:"name"`
-	Region      string            `toml:"region"`
-	Ip          string            `toml:"ip"`
-	NodeId      string            `toml:"nodeId"`
-	Env         AppEnv            `toml:"env"`
-	Custom      map[string]string `toml:"custom"`
-	FullAppName string
-	HttpPort int `toml:"httpPort"`
-	RpcPort int `toml:"rpcPort"`
+	Group          string            `toml:"group"`
+	Name           string            `toml:"name"`
+	Region         string            `toml:"region"`
+	Ip             string            `toml:"ip"`
+	NodeId         string            `toml:"nodeId"`
+	Env            AppEnv            `toml:"env"`
+	Custom         map[string]string `toml:"custom"`
+	FullAppName    string
+	HttpPort       int      `toml:"httpPort"`
+	RpcPort        int      `toml:"rpcPort"`
 	KafkaHookAddrs []string `toml:"kafkaHookAddrs"`
 }
 
@@ -59,13 +60,15 @@ type MysqlConf struct {
 	Username string `toml:"username"`
 	Password string `toml:"password"`
 	Charset  string `toml:"charset"`
+	//sql执行警告阈值，毫秒
+	WarnThreshold time.Duration `toml:"warnThreshold"`
 }
 
 //redis配置
 type RedisConf struct {
 	Addr      string   `toml:"addr"`
 	Password  string   `toml:"password"`
-	DbIndex   int    `toml:"dbIndex"`
+	DbIndex   int      `toml:"dbIndex"`
 	Sentinels []string `toml:"sentinels"` //redis sentinel列表
 }
 
@@ -107,7 +110,7 @@ func InitConfig() {
 	flag.StringVar(&LogoutPath, "logout", defaultLogPath, "logout path")
 	flag.Parse()
 
-	fmt.Println("配置文件地址",configPath)
+	fmt.Println("配置文件地址", configPath)
 	fmt.Println("默认日志路径", LogoutPath)
 
 	//var appConf AppConf
@@ -132,8 +135,8 @@ func LoadConfFile(fileName string, out interface{}) {
 	if _, err := toml.DecodeFile(path.Join(configPath, fileName), out); err != nil {
 		log.Fatalf("load config %s fail,err:%v", fileName, err)
 		os.Exit(0)
-	}else{
-		fmt.Printf("load config:%s, success:%+v\n",fileName, out)
+	} else {
+		fmt.Printf("load config:%s, success:%+v\n", fileName, out)
 	}
 }
 

@@ -30,6 +30,30 @@ func (p *BaseDao) GetReadWriteDB() *gorm.DB {
 	return app.ReadWriteDB
 }
 
+//查询自定义返回对象
+func (p *BaseDao) SelectCustom(out []interface{}, sqlStr string, values ...interface{}) error {
+	type1 := reflect.TypeOf(out)
+	if type1.Kind() != reflect.Slice {
+		log.Logger().Error("第一个参数必须是interface切片")
+		return errors.New("第一个参数必须是interface切片")
+	}
+	if len(out) == 0 {
+		log.Logger().Error("第一个参数长度不能为空")
+		return errors.New("第一个参数长度不能为空")
+	}
+	var row *gorm.DB
+	if len(values) > 0 {
+		row = app.ReadOnlyDB.Raw(sqlStr, values...)
+	} else {
+		row = app.ReadOnlyDB.Raw(sqlStr)
+	}
+	if err := row.Row().Scan(out...); err != nil {
+		log.Logger().Error("sql error:", err)
+		return err
+	}
+	return nil
+}
+
 //查询struct对象
 func (p *BaseDao) SelectOne(out interface{}, sqlStr string, values ...interface{}) error {
 	type1 := reflect.TypeOf(out)

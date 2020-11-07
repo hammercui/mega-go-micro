@@ -16,7 +16,6 @@ var readOnlyDB, readWriteDB *gorm.DB
 
 //初始化只读mysql
 func InitMysqlReadOnly() *gorm.DB {
-	appConf := conf.GetConf().AppConf
 	mysqlConf := conf.GetConf().MysqlConf
 	readAddr := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local",
 		mysqlConf.Username,
@@ -26,7 +25,7 @@ func InitMysqlReadOnly() *gorm.DB {
 		mysqlConf.Charset,
 	)
 	db, err := gorm.Open(mysql.Open(readAddr), &gorm.Config{
-		Logger: NewGormLog(appConf.Env),
+		Logger: NewGormLog(conf.GetConf()),
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "",
 			SingularTable: true,
@@ -41,7 +40,6 @@ func InitMysqlReadOnly() *gorm.DB {
 }
 
 func InitMysqlReadWrite() *gorm.DB {
-	appConf := conf.GetConf().AppConf
 	mysqlConf := conf.GetConf().MysqlConf
 	readwriteAddr := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local",
 		mysqlConf.Username,
@@ -51,7 +49,7 @@ func InitMysqlReadWrite() *gorm.DB {
 		mysqlConf.Charset,
 	)
 	db, err := gorm.Open(mysql.Open(readwriteAddr), &gorm.Config{
-		Logger: NewGormLog(appConf.Env),
+		Logger: NewGormLog(conf.GetConf()),
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "",
 			SingularTable: true,

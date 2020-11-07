@@ -19,16 +19,18 @@ import (
 	infraLog "github.com/hammercui/mega-go-micro/log"
 )
 
-func NewGormLog(env conf.AppEnv) *logger {
-	//执行超过5ms报警
-	slowThresHold := 10 * time.Millisecond
-	if env == conf.AppEnv_prod {
-		//生产超过1ms报警
-		slowThresHold = 10 * time.Millisecond
+func NewGormLog(configs *conf.Config) *logger {
+	//默认执行超过10ms报警
+	slowThreshold := 10 * time.Millisecond
+
+	//读取配置
+	if(configs.MysqlConf.WarnThreshold > 0){
+		slowThreshold = configs.MysqlConf.WarnThreshold * time.Millisecond
 	}
+
 	return &logger{
-		SlowThreshold: slowThresHold,
-		Env:           env,
+		SlowThreshold: slowThreshold,
+		Env:           configs.AppConf.Env,
 	}
 }
 
