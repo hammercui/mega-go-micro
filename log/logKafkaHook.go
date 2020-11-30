@@ -138,7 +138,6 @@ func getKafkaHook() *KafkaHook {
 		"kh",
 		levelArray,
 		&logrus.JSONFormatter{},
-		//[]string{"47.96.30.119:9992"},
 		appConfig.KafkaHookAddrs,
 	)
 	if err != nil {

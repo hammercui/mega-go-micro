@@ -20,10 +20,6 @@ import (
 )
 
 func NewKafkaBroker() broker.Broker {
-	appConf := conf.GetConf().AppConf
-	if(appConf.Env == conf.AppEnv_local){
-		return nil
-	}
 	kafkaConf := conf.GetConf().KafkaConf
 	//初始化broker
 	//v1
@@ -46,7 +42,7 @@ func NewKafkaBroker() broker.Broker {
 		log.Logger().Errorf("kafka broker连接失败,conf:%v,err:%+v", kafkaConf, err)
 		return nil
 	} else {
-		log.Logger().Info("kafka broker连接成功,conf:%v", kafkaConf)
+		log.Logger().Infof("kafka broker连接成功,conf:%v", kafkaConf)
 		return bro
 	}
 }

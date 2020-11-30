@@ -1,0 +1,7 @@
+dbName="mega"
+addr="192.168.2.20:3306"
+readAddr="192.168.2.20:3306"
+username="mega"
+password="mega"
+charset="utf8mb4"
+warnThreshold=50
