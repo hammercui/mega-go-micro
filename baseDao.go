@@ -2,9 +2,9 @@ package infra
 
 import (
 	"errors"
+	"github.com/hammercui/mega-go-micro/log"
 	"gorm.io/gorm"
 	"reflect"
-	"github.com/hammercui/mega-go-micro/log"
 )
 
 type BaseDao struct {
@@ -48,7 +48,7 @@ func (p *BaseDao) SelectCustom(out []interface{}, sqlStr string, values ...inter
 		row = app.ReadOnlyDB.Raw(sqlStr)
 	}
 	if err := row.Row().Scan(out...); err != nil {
-		log.Logger().Error("sql error:", err)
+		log.Logger().Error("SelectCustom sql error:", err, " | sqlStr: ", sqlStr)
 		return err
 	}
 	return nil
@@ -75,24 +75,24 @@ func (p *BaseDao) SelectOne(out interface{}, sqlStr string, values ...interface{
 func (p *BaseDao) SelectAll(outs interface{}, sqlStr string, values ...interface{}) error {
 	type1 := reflect.TypeOf(outs)
 	if type1.Kind() != reflect.Ptr {
-		log.Logger().Error("第一个参数必须是指针,sql:",sqlStr)
+		log.Logger().Error("第一个参数必须是指针,sql:", sqlStr)
 		return errors.New("第一个参数必须是指针")
 	}
-	type2 := type1.Elem()	// 解指针后的类型
+	type2 := type1.Elem() // 解指针后的类型
 	if type2.Kind() != reflect.Slice {
-		log.Logger().Error("第一个参数必须指向切片,sql:",sqlStr)
+		log.Logger().Error("第一个参数必须指向切片,sql:", sqlStr)
 		return errors.New("第一个参数必须指向切片")
 	}
 	type3 := type2.Elem()
 	if type3.Kind() != reflect.Ptr {
-		log.Logger().Error("切片元素必须是指针类型,sql:",sqlStr)
+		log.Logger().Error("切片元素必须是指针类型,sql:", sqlStr)
 		return errors.New("切片元素必须是指针类型")
 	}
 
 	rows, err := app.ReadOnlyDB.Raw(sqlStr, values...).Rows()
 	defer rows.Close()
 	if err != nil {
-		log.Logger().Error("sql err:", err)
+		log.Logger().Error("SelectAll sql err:", err, " | sqlStr: ", sqlStr)
 	}
 
 	for rows.Next() {
@@ -101,7 +101,7 @@ func (p *BaseDao) SelectAll(outs interface{}, sqlStr string, values ...interface
 		// 传入*User
 		err := app.ReadOnlyDB.ScanRows(rows, elem.Interface())
 		if err != nil {
-			log.Logger().Error("gorm err:", err)
+			log.Logger().Error("SelectAll gorm err:", err, " | sqlStr: ", sqlStr)
 			continue
 		}
 		// reflect.ValueOf(result).Elem()是[]*User，Elem是*User，newSlice是[]*User
