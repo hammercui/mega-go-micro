@@ -53,7 +53,10 @@ func (p *BaseDao) SelectCustom(out []interface{}, sqlStr string, values ...inter
 		return nil
 	}
 
-	if err := row.Row().Scan(out...); err != nil && err != sql.ErrNoRows {
+	if err := row.Row().Scan(out...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil
+		}
 		log.Logger().Error("SelectCustom sql error:", err, " | sqlStr: ", sqlStr)
 		return err
 	}
