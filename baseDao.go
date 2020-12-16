@@ -49,10 +49,6 @@ func (p *BaseDao) SelectCustom(out []interface{}, sqlStr string, values ...inter
 		row = app.ReadOnlyDB.Raw(sqlStr)
 	}
 
-	if row.Row() == nil {
-		return nil
-	}
-
 	if err := row.Row().Scan(out...); err != nil {
 		if err == sql.ErrNoRows {
 			return nil
