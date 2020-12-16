@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/hammercui/mega-go-micro/log"
 	"gorm.io/gorm"
@@ -47,7 +48,17 @@ func (p *BaseDao) SelectCustom(out []interface{}, sqlStr string, values ...inter
 	} else {
 		row = app.ReadOnlyDB.Raw(sqlStr)
 	}
-	if err := row.Row().Scan(out...); err != nil {
+
+	if row.Row() == nil {
+		return nil
+	}
+
+	if row.Row().Err() != nil {
+		log.Logger().Error("SelectCustom sql error:", row.Row().Err(), " | sqlStr: ", sqlStr)
+		return row.Row().Err()
+	}
+
+	if err := row.Row().Scan(out...); err != nil && err != sql.ErrNoRows {
 		log.Logger().Error("SelectCustom sql error:", err, " | sqlStr: ", sqlStr)
 		return err
 	}
