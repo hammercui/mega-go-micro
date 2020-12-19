@@ -247,8 +247,6 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 		tags = strings.Split(value, ",")
 	}
 
-
-
 	host, pt, _ := net.SplitHostPort(node.Address)
 	if host == "" {
 		host = node.Address
@@ -260,7 +258,7 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 		registerIp = value
 	}
 	//newL注册服务类型
-	registerServerType :=""
+	registerServerType := ""
 	if value, ok := node.Metadata["server"]; ok {
 		registerServerType = value
 	}
@@ -278,17 +276,21 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 		// if the TTL is greater than 0 create an associated check
 	} else if options.TTL > time.Duration(0) {
 		deregTTL := getDeregisterTTL(options.TTL)
-		if(registerServerType == "grpc"){
+		if registerServerType == "grpc" {
 			check = &consul.AgentServiceCheck{
 				TTL:                            fmt.Sprintf("%v", options.TTL),
 				DeregisterCriticalServiceAfter: fmt.Sprintf("%v", deregTTL),
 			}
 			fmt.Println("健康检查，grpc")
-		}else{
-			check = &consul.AgentServiceCheck{
+		} else {
+			/*check = &consul.AgentServiceCheck{
 				HTTP:fmt.Sprintf("http://%s:%d", registerIp,port),
 				Timeout: "10s",
 				Interval:"10s",
+				DeregisterCriticalServiceAfter: fmt.Sprintf("%v", deregTTL),
+			}*/
+			check = &consul.AgentServiceCheck{
+				TTL:                            fmt.Sprintf("%v", options.TTL),
 				DeregisterCriticalServiceAfter: fmt.Sprintf("%v", deregTTL),
 			}
 			fmt.Println("健康检查，http")
@@ -314,6 +316,7 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 	}
 
 	if err := c.Client().Agent().ServiceRegister(asr); err != nil {
+
 		return err
 	}
 
@@ -323,7 +326,7 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 	c.lastChecked[s.Name] = time.Now()
 	c.Unlock()
 
-	if(registerServerType != "grpc"){
+	if registerServerType != "grpc" {
 		c.register[s.Name] = h
 		return nil
 	}

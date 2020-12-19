@@ -1,7 +1,7 @@
 group="mega-web"
 name="activity"
 region="cn"
-ip="192.168.1.255"
+ip="192.168.1.168"
 nodeId="1"
 env="local"
 httpPort=9949
