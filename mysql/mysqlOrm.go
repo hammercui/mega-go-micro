@@ -2,17 +2,16 @@ package mysql
 
 import (
 	"fmt"
+	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/log"
 	"gorm.io/driver/mysql"
 	_ "gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	"os"
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/log"
 )
 
 var readOnlyDB, readWriteDB *gorm.DB
-
 
 //初始化只读mysql
 func InitMysqlReadOnly() *gorm.DB {
@@ -32,9 +31,10 @@ func InitMysqlReadOnly() *gorm.DB {
 		},
 	})
 	if err != nil {
-		log.Logger().Errorf("mysql readonly:%s connect err!%v", readAddr, err)
+		log.Logger().Errorf("mysql readonly:%s connect error!%v", readAddr, err)
 		os.Exit(0)
 	}
+	log.Logger().Infof("mysql readonly:%s connect success!", readAddr)
 	readOnlyDB = db
 	return readOnlyDB
 }
@@ -59,12 +59,7 @@ func InitMysqlReadWrite() *gorm.DB {
 		log.Logger().Errorf("mysql readwrite:%s connect err!%v", readwriteAddr, err)
 		os.Exit(0)
 	}
-	//err = db.
-	//if err != nil {
-	//	log.Logger().Errorf("mysql readwrite:%s connect err!%v", readwriteAddr, err)
-	//	os.Exit(0)
-	//}
-
+	log.Logger().Infof("mysql readwrite:%s connect success!", readwriteAddr)
 	readWriteDB = db
 	return readWriteDB
 }

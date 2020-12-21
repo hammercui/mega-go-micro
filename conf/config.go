@@ -82,7 +82,8 @@ type MongoConf struct {
 
 //consul配置
 type ConsulConf struct {
-	Addrs []string `json:"addrs" toml:"addrs"`
+	Addrs   []string `json:"addrs" toml:"addrs"`
+	ConfKey string   `json:"confKey" toml:"confKey"`
 }
 
 //kafka配置

@@ -11,9 +11,9 @@ package redis
 import (
 	//"fmt"
 	"github.com/go-redis/redis"
-	"os"
 	"github.com/hammercui/mega-go-micro/conf"
 	"github.com/hammercui/mega-go-micro/log"
+	"os"
 )
 
 var redisClient *redis.Client
@@ -29,11 +29,11 @@ func initDirect() *redis.Client {
 	})
 	pong, err := redisClient.Ping().Result()
 	if err != nil {
-		log.Logger().Infof("redis conn:%s fail,err:%v", redisConf.Addr, err)
+		log.Logger().Infof("redis direct connect:%s fail,err:%v", redisConf.Addr, err)
 		log.Logger().Error(err)
 		os.Exit(0)
 	}
-	log.Logger().Infof("redis conn:%s %s !", redisConf.Addr, pong)
+	log.Logger().Infof("redis direct connect:%s %s !", redisConf.Addr, pong)
 	return redisClient
 }
 
@@ -53,10 +53,10 @@ func InitRedis() *redis.Client {
 
 	pong, err := redisClient.Ping().Result()
 	if err != nil {
-		log.Logger().Error("redis sentinel conn fail!err:%v", err)
+		log.Logger().Error("redis sentinel connect fail!err:%v", err)
 		os.Exit(0)
 	}
-	log.Logger().Info("redis sentinel conn success!%s ！", pong)
+	log.Logger().Info("redis sentinel connect success!%s ！", pong)
 	return redisClient
 
 	////connect mongo

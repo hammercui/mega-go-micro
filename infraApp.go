@@ -16,6 +16,7 @@ import (
 	"github.com/hammercui/mega-go-micro/mysql"
 	infraRedis "github.com/hammercui/mega-go-micro/redis"
 	"github.com/hammercui/mega-go-micro/registry/consul"
+	"github.com/hammercui/mega-go-micro/watch"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"
@@ -31,7 +32,8 @@ type InfraApp struct {
 	Reg         registry.Registry //服务注册
 	Selector    selector.Selector //服务发现
 	Broker      broker.Broker     //消息订阅与发布
-	//todo 配置中心
+	//配置中心
+	ConfWatch *watch.ConfWatch
 	//todo mongo连接
 }
 
@@ -49,25 +51,37 @@ func InitApp() *InfraApp {
 		op.Addrs = consulConf.Addrs
 	})
 	sel := selector.NewSelector(selector.Registry(reg))
-	//4 从配置中心合并配置
-	//todo 读取配置中心配置
-	//4 redis client
+
+	//4 从配置中心合并配置并监听配置
+	confWatch := watch.InitConfWatch()
+
+	//5 redis client
 	redisClient := infraRedis.InitRedis()
-	//5 init broker
+	//6 init broker
 	brokerIns := infraBroker.NewKafkaBroker()
 
 	//初始化
 	app = InfraApp{
-		//RedisClient: infraRedis.InitRedis(),
 		ReadOnlyDB:  mysql.InitMysqlReadOnly(),
 		ReadWriteDB: mysql.InitMysqlReadWrite(),
 		Reg:         reg,
 		Selector:    sel,
 		RedisClient: redisClient,
 		Broker:      brokerIns,
+		ConfWatch:   confWatch,
 	}
 
+	regisConfWatch()
+
 	return &app
+}
+
+func regisConfWatch() {
+	//mysql
+	app.ConfWatch.Watch("mysql", &map[string]string{}, func(outConf interface{}, err error) {
+		log.Logger().Debugf("监听到配置变更", outConf)
+		//todo mysql重连
+	})
 }
 
 //卸载app

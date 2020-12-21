@@ -21,6 +21,7 @@ require (
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/micro/go-micro/v2 v2.9.1
 	github.com/micro/go-plugins/broker/kafka/v2 v2.9.1
+	github.com/micro/go-plugins/config/source/consul/v2 v2.9.1
 	github.com/micro/go-plugins/logger/logrus/v2 v2.9.1
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/pkg/errors v0.9.1

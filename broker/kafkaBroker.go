@@ -12,11 +12,11 @@
 package broker
 
 import (
+	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/log"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-plugins/broker/kafka/v2"
 	"time"
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/log"
 )
 
 func NewKafkaBroker() broker.Broker {
@@ -35,14 +35,14 @@ func NewKafkaBroker() broker.Broker {
 	if err := bro.Init(func(o *broker.Options) {
 		o.Addrs = kafkaConf.Addrs
 	}); err != nil {
-		log.Logger().Errorf("kafka broker启动失败,conf:%v,err:%+v", kafkaConf, err)
+		log.Logger().Errorf("kafka broker connect fail!,conf:%v,err:%+v", kafkaConf, err)
 		return nil
 	}
 	if err := bro.Connect(); err != nil {
-		log.Logger().Errorf("kafka broker连接失败,conf:%v,err:%+v", kafkaConf, err)
+		log.Logger().Errorf("kafka broker connect fail!,conf:%v,err:%+v", kafkaConf, err)
 		return nil
 	} else {
-		log.Logger().Infof("kafka broker连接成功,conf:%v", kafkaConf)
+		log.Logger().Infof("kafka broker connect success!,conf:%v", kafkaConf)
 		return bro
 	}
 }
