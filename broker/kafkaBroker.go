@@ -39,7 +39,7 @@ func NewKafkaBroker() broker.Broker {
 		return nil
 	}
 	if err := bro.Connect(); err != nil {
-		log.Logger().Errorf("kafka broker connect fail!,conf:%v,err:%+v", kafkaConf, err)
+		log.Logger().Errorf("kafka broker connect fail!,conf:%+v,err:%+v", kafkaConf, err)
 		return nil
 	} else {
 		log.Logger().Infof("kafka broker connect success!,conf:%v", kafkaConf)

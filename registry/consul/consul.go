@@ -236,11 +236,11 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 			}
 		}
 	}
-	fmt.Println("元数据", node.Metadata)
 	// encode the tags
 	//tags := encodeMetadata(node.Metadata)
 	//tags = append(tags, encodeEndpoints(s.Endpoints)...)
 	//tags = append(tags, encodeVersion(s.Version)...)
+	fmt.Println("元数据", node.Metadata)
 	//new:获得注册tags
 	tags := []string{}
 	if value, ok := node.Metadata["tags"]; ok {
@@ -282,18 +282,20 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 				DeregisterCriticalServiceAfter: fmt.Sprintf("%v", deregTTL),
 			}
 			fmt.Println("健康检查，grpc")
+			fmt.Println("options.TTL ", options.TTL)
+			fmt.Println("deregTTL ", deregTTL)
 		} else {
-			/*check = &consul.AgentServiceCheck{
-				HTTP:fmt.Sprintf("http://%s:%d", registerIp,port),
-				Timeout: "10s",
-				Interval:"10s",
-				DeregisterCriticalServiceAfter: fmt.Sprintf("%v", deregTTL),
-			}*/
 			check = &consul.AgentServiceCheck{
-				TTL:                            fmt.Sprintf("%v", options.TTL),
+				HTTP:                           fmt.Sprintf("http://%s:%d", registerIp, port),
+				Timeout:                        "10s",
+				Interval:                       "5s",
 				DeregisterCriticalServiceAfter: fmt.Sprintf("%v", deregTTL),
 			}
-			fmt.Println("健康检查，http")
+			//check = &consul.AgentServiceCheck{
+			//	TTL:                            fmt.Sprintf("%v", options.TTL),
+			//	DeregisterCriticalServiceAfter: fmt.Sprintf("%v", deregTTL),
+			//}
+			fmt.Println("健康检查，other")
 		}
 	}
 
@@ -316,7 +318,7 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 	}
 
 	if err := c.Client().Agent().ServiceRegister(asr); err != nil {
-
+		fmt.Println("ServiceRegister err", err)
 		return err
 	}
 
@@ -326,10 +328,10 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 	c.lastChecked[s.Name] = time.Now()
 	c.Unlock()
 
-	if registerServerType != "grpc" {
-		c.register[s.Name] = h
-		return nil
-	}
+	//if registerServerType != "grpc" {
+	//	c.register[s.Name] = h
+	//	return nil
+	//}
 
 	// if the TTL is 0 we don't mess with the checks
 	if options.TTL == time.Duration(0) {
@@ -337,7 +339,11 @@ func (c *consulRegistry) Register(s *registry.Service, opts ...registry.Register
 	}
 
 	// pass the healthcheck
-	return c.Client().Agent().PassTTL("service:"+node.Id, "")
+	if registerServerType == "grpc" {
+		return c.Client().Agent().PassTTL("service:"+node.Id, "")
+	} else {
+		return nil
+	}
 }
 
 func (c *consulRegistry) GetService(name string, opts ...registry.GetOption) ([]*registry.Service, error) {

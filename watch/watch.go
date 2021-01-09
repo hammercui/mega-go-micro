@@ -31,7 +31,8 @@ type ConfWatch struct {
 	env          string
 }
 
-func InitConfWatch() *ConfWatch {
+//新建配置中心监听
+func NewConfWatch() *ConfWatch {
 	env := conf.GetConf().AppConf.Env
 	key := "werewolf_conf"
 	if len(conf.GetConf().ConsulConf.ConfKey) != 0 {
@@ -65,39 +66,74 @@ func InitConfWatch() *ConfWatch {
 	}
 	log.Logger().Info("init config center success ! pre: ", consulConfPre)
 
+	//3 merge配置
+	confWatch.mergeConf()
+
+	return confWatch
+}
+
+func (p *ConfWatch) mergeConf() {
 	//mysql
 	mysqlMap := make(map[string]string)
-	if err := confWatch.Get("mysql", &mysqlMap); err != nil {
+	if err := p.Get("mysql", &mysqlMap); err != nil {
 		os.Exit(0)
 	}
-	log.Logger().Debug("mysqlHostPort", mysqlMap)
+	log.Logger().Debug("mysql from config center: ", mysqlMap)
 	if len(mysqlMap) != 0 {
 		conf.GetConf().MysqlConf.Addr = fmt.Sprintf("%s:%s", mysqlMap["host"], mysqlMap["port"])
 	}
 
-	//redis
-	var redisMap = []map[string]string{
-		make(map[string]string),
+	//readMysql
+	readMysqlMap := make(map[string]string)
+	if err := p.Get("readMysql", &readMysqlMap); err != nil {
+		os.Exit(0)
 	}
-	err = confWatch.Get("redis", &redisMap)
+	log.Logger().Debug("readMysql from config center: ", readMysqlMap)
+	if len(readMysqlMap) != 0 {
+		conf.GetConf().MysqlConf.ReadAddr = fmt.Sprintf("%s:%s", mysqlMap["host"], mysqlMap["port"])
+	}
+
+	//redis
+	var redisMap = []map[string]interface{}{}
+	err := p.Get("redis", &redisMap)
 	if err != nil {
 		os.Exit(0)
 	}
-	log.Logger().Debug("redisHostPorts", redisMap)
+	log.Logger().Debug("redis from config center: ", redisMap)
 	if len(redisMap) > 0 {
 		var redisAddrs []string
 		for _, item := range redisMap {
-			redisAdds := fmt.Sprintf("%s:%s", item["host"], item["port"])
+			redisAdds := fmt.Sprintf("%s:%v", item["host"], item["port"])
 			redisAddrs = append(redisAddrs, redisAdds)
 		}
 		conf.GetConf().RedisConf.Sentinels = redisAddrs
 	}
 
-	//todo kafka
+	// kafka
+	var kafkaMap = []map[string]interface{}{}
+	if err = p.Get("kafka", &kafkaMap); err == nil && len(kafkaMap) > 0 {
+		log.Logger().Debug("kafka from config center: ", kafkaMap)
+		var kafkaAddrs []string
+		for _, item := range kafkaMap {
+			kafkaAddr := fmt.Sprintf("%s:%v", item["host"], item["port"])
+			kafkaAddrs = append(kafkaAddrs, kafkaAddr)
+		}
+		conf.GetConf().KafkaConf.Addrs = kafkaAddrs
+	}
 
-	//todo mongo
-
-	return confWatch
+	//mongo
+	var mongoMap = []map[string]interface{}{}
+	if err = p.Get("mongodb", &mongoMap); err == nil && len(mongoMap) > 0 {
+		log.Logger().Debug("mongodb from config center: ", mongoMap)
+		var mongoAddrs []string
+		addrUrl := "mongodb://"
+		for _, item := range kafkaMap {
+			addr := fmt.Sprintf("%s:%v", item["host"], item["port"])
+			mongoAddrs = append(mongoAddrs, addr)
+			addrUrl = fmt.Sprintf("%s%s,", addrUrl, addr)
+		}
+		conf.GetConf().MongoConf.Addr = addrUrl
+	}
 }
 
 //从配置中心获得配置
@@ -127,7 +163,6 @@ func (p *ConfWatch) Get(key string, out interface{}) error {
 			return err
 		}
 	}
-
 	return nil
 }
 
@@ -168,6 +203,7 @@ func (p *ConfWatch) Watch(key string, out interface{}, callback WatchCallback) e
 					reflect.ValueOf(out).Elem().SetMapIndex(k, val)
 				}
 				callback(out, nil)
+			//
 			default:
 				err := v.Scan(out)
 				if err != nil {

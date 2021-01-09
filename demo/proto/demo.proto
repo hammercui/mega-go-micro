@@ -1,0 +1,30 @@
+syntax = "proto3";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+import "third/wrappers.proto";
+import "third/empty.proto";
+option go_package = ".;protoModel";
+
+service Demo {
+  rpc Info (CommReq) returns (DemoResp) {
+    option (google.api.http) = {
+      post:"/demo/info"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "demo-首页信息"
+    };
+  }
+}
+message CommReq {
+  string userNo = 1;
+  string cookie = 2; //cookie
+}
+message DemoResp{
+  //注释: 1 success 其他失败
+  int32 code = 1;
+  //注释: ok
+  string msg = 2;
+  //注释: 返回dto
+  string data = 3;
+}

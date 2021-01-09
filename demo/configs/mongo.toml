@@ -1,4 +1,4 @@
-addr="mongodb://192.168.2.20:27017"
-dbName="test"
-username="admin"
-password=""
+addr = "mongodb://192.168.2.20:27017"
+dbName = "test"
+username = "admin"
+password = ""

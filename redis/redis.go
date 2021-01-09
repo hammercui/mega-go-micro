@@ -16,13 +16,11 @@ import (
 	"os"
 )
 
-var redisClient *redis.Client
-
 //初始化redis
 func initDirect() *redis.Client {
 	redisConf := conf.GetConf().RedisConf
 	//connect redis
-	redisClient = redis.NewClient(&redis.Options{
+	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisConf.Addr,
 		Password: "",                // no password set
 		DB:       redisConf.DbIndex, // use default DB
@@ -37,7 +35,7 @@ func initDirect() *redis.Client {
 	return redisClient
 }
 
-func InitRedis() *redis.Client {
+func NewRedisClient() *redis.Client {
 	appConf := conf.GetConf().AppConf
 	redisConf := conf.GetConf().RedisConf
 	if appConf.Env == conf.AppEnv_local {
@@ -58,45 +56,18 @@ func InitRedis() *redis.Client {
 	}
 	log.Logger().Info("redis sentinel connect success!%s ！", pong)
 	return redisClient
-
-	////connect mongo
-	//ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	//p.mongoClient,err = mongo.Connect(ctx,options.Client().ApplyURI(conf.Config.Mongo.Address))
-	//if err!=nil{
-	//	logger.Error("mongodb conn:%s fail,err：%v",conf.Config.Mongo.Address)
-	//	panic(err)
-	//}
-	//err = p.mongoClient.Ping(ctx, readpref.Primary())
-	//if err!=nil{
-	//	logger.Error("mongodb ping :%s fail!",conf.Config.Mongo.Address)
-	//}else{
-	//	logger.Info("mongodb ping :%s success!",conf.Config.Mongo.Address)
-	//}
-	//
-	//return p;
 }
 
 //卸载redis
-func UnitRedis() {
-	if redisClient != nil {
-		//关闭redis连接
-		if err := redisClient.Close(); err != nil {
-			log.Logger().Error("redis close error:%v", err)
-		} else {
-			log.Logger().Info("redis close success!")
-		}
-	} else {
-		log.Logger().Info("redis is nil,no need close !")
-	}
-
-	////close mongo
-	//if p.mongoClient !=nil {
-	//	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	//
-	//	if err :=p.mongoClient.Disconnect(ctx);err !=nil{
-	//		logger.Error("mongodb close error:%v",err)
-	//	}else{
-	//		logger.Info("mongodb close success!")
-	//	}
-	//}
-}
+//func UnitRedis() {
+//	if redisClient != nil {
+//		//关闭redis连接
+//		if err := redisClient.Close(); err != nil {
+//			log.Logger().Error("redis close error:%v", err)
+//		} else {
+//			log.Logger().Info("redis close success!")
+//		}
+//	} else {
+//		log.Logger().Info("redis is nil,no need close !")
+//	}
+//}

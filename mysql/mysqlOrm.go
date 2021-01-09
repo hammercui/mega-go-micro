@@ -11,10 +11,10 @@ import (
 	"os"
 )
 
-var readOnlyDB, readWriteDB *gorm.DB
+//var readOnlyDB, readWriteDB *gorm.DB
 
 //初始化只读mysql
-func InitMysqlReadOnly() *gorm.DB {
+func NewMysqlReadOnly() *gorm.DB {
 	mysqlConf := conf.GetConf().MysqlConf
 	readAddr := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local",
 		mysqlConf.Username,
@@ -35,11 +35,12 @@ func InitMysqlReadOnly() *gorm.DB {
 		os.Exit(0)
 	}
 	log.Logger().Infof("mysql readonly:%s connect success!", readAddr)
-	readOnlyDB = db
-	return readOnlyDB
+	//readOnlyDB = db
+	//return readOnlyDB
+	return db
 }
 
-func InitMysqlReadWrite() *gorm.DB {
+func NewMysqlReadWrite() *gorm.DB {
 	mysqlConf := conf.GetConf().MysqlConf
 	readwriteAddr := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local",
 		mysqlConf.Username,
@@ -60,10 +61,11 @@ func InitMysqlReadWrite() *gorm.DB {
 		os.Exit(0)
 	}
 	log.Logger().Infof("mysql readwrite:%s connect success!", readwriteAddr)
-	readWriteDB = db
-	return readWriteDB
+	//readWriteDB = db
+	//return readWriteDB
+	return db
 }
 
-func UnitMysql() {
-
-}
+//func UnitMysql() {
+//
+//}
