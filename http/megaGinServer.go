@@ -24,8 +24,8 @@ import (
 )
 
 type GinServer struct {
-	ginRouter  *gin.Engine
-	app        *infra.InfraApp
+	ginRouter *gin.Engine
+	app       *infra.InfraApp
 }
 
 func (p *GinServer) NewSubscriber(s string, i interface{}, option ...server.SubscriberOption) server.Subscriber {
@@ -182,18 +182,20 @@ func bindJson(out interface{}, c *gin.Context) error {
 }
 
 type HttpResponse struct {
-	Code int32  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
-	Sign int32  `protobuf:"varint,2,opt,name=sign,proto3" json:"sign,omitempty"`
-	Msg  string `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
+	Code   int32  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
+	Sign   int32  `protobuf:"varint,2,opt,name=sign,proto3" json:"sign,omitempty"`
+	Msg    string `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
+	Result string `protobuf:"bytes,4,opt,name=msg,proto3" json:"result,omitempty"`
 }
 
 func dieFail(err error, c *gin.Context) {
 	sentry.CaptureException(err)
 	sentry.Flush(2 * time.Second)
 	c.JSON(http.StatusOK, HttpResponse{
-		Code: 400,
-		Sign: 400,
-		Msg:  err.Error(),
+		Code:   400,
+		Sign:   400,
+		Msg:    err.Error(),
+		Result: err.Error(),
 	})
 }
 
