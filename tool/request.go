@@ -11,14 +11,16 @@ package tool
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/log"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
-	"github.com/hammercui/mega-go-micro/log"
 )
 
 //从body获得json v2版本
@@ -26,8 +28,15 @@ func ReadPostJsonV2(c *gin.Context) []byte {
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	return body
 }
+func getReqHash()  string{
+	timeStamp := time.Now().UnixNano()
+	nodeId,_ := strconv.Atoi(conf.GetConf().AppConf.NodeId)
+	offset := int64(nodeId * 100000000000000000000)
+	newTimeStamp := timeStamp + offset
+	return fmt.Sprintf("%d",newTimeStamp)
+}
 
-func PostJson(url string, v interface{},out interface{}) error  {
+func PostJson(url string, v interface{}, out interface{}) error {
 	//默认值
 	timeout := 10 * time.Second
 
@@ -35,8 +44,9 @@ func PostJson(url string, v interface{},out interface{}) error  {
 	//if (millSec > int(conf.Config.Server.PhpTimeOut)) {
 	//	timeout = time.Duration(millSec) * time.Millisecond
 	//}
-	log.Logger().Infof("http request-->: url[%s]", url)
-	log.Logger().Info("http request->:timeout", timeout)
+	reqHash := getReqHash()
+	log.Logger().Infof("[%s]http request-->: url[%s]",reqHash, url)
+	log.Logger().Infof("[%s]http request->:timeout:%d",reqHash, timeout)
 	client := &http.Client{
 		Timeout: timeout,
 	}
@@ -49,56 +59,55 @@ func PostJson(url string, v interface{},out interface{}) error  {
 		if vbyte, err := json.Marshal(v); err == nil {
 			bytesData = vbyte
 		} else {
-			log.Logger().Error("json Marshal err", err)
+			log.Logger().Errorf("json Marshal err:%+v", err)
 			return err
 		}
 	}
-	log.Logger().Info("http request->:body", string(bytesData))
+	log.Logger().Infof("[%s]http request->:body[%s]",reqHash, string(bytesData))
 	//logger.Debug(fmt.Sprintf("http request-->url: %s",url))
 	//logger.Debug(fmt.Sprintf("http request-->data: %s",string(bytesData)))
 	reader := bytes.NewReader(bytesData)
 	request, err := http.NewRequest("POST", url, reader)
 	if err != nil {
-		log.Logger().Error("request err:%+v", err)
+		log.Logger().Errorf("[%s]http request err:%+v",reqHash, err)
 		return err
 	}
 	request.Header.Set("Content-Type", "application/json;charset=UTF-8")
 	resp, err := client.Do(request)
 	if err != nil {
-		log.Logger().Error("request do err:%+v", err)
+		log.Logger().Errorf("[%s]http request do err:%+v",reqHash, err)
 		return err
 	}
 	//http !=200
-	if (resp.StatusCode != http.StatusOK) {
-		log.Logger().Error("request do err: statusCode=%d", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		log.Logger().Errorf("[%s]http request do err: statusCode=%d",reqHash, resp.StatusCode)
 		return err
 	}
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	if err := resp.Body.Close(); err != nil {
-		log.Logger().Error("resp.Body close err:%+v", err)
+		log.Logger().Errorf("resp.Body close err:%+v", err)
 		return err
 	}
 	if err != nil {
-		log.Logger().Error("respBytes err:%+v", err)
+		log.Logger().Errorf("respBytes err:%+v", err)
 		return err
 	}
-	log.Logger().Infof("http response<--: %s", string(respBytes))
+	log.Logger().Infof("[%s]http response<--: %s",reqHash, string(respBytes))
 	//byte数组直接转成string，优化内存
 	//str := (*string)(unsafe.Pointer(&respBytes))
-	if(out == nil){
+	if out == nil {
 		return nil
 	}
 	err = json.Unmarshal(respBytes, out)
 	if err != nil {
-		log.Logger().Error("json Unmarshal err", err)
-		return err;
+		log.Logger().Errorf("http json Unmarshal err", err)
+		return err
 	}
 	return nil
-
 }
 
 //请求表单
-func PostForm(urlStr string, data url.Values,out interface{}) error  {
+func PostForm(urlStr string, data url.Values, out interface{}) error {
 	//默认值
 	timeout := 10 * time.Second
 	log.Logger().Infof("http request-->: url[%s]", urlStr)
@@ -119,7 +128,7 @@ func PostForm(urlStr string, data url.Values,out interface{}) error  {
 	}
 	defer resp.Body.Close()
 	//http !=200
-	if (resp.StatusCode != http.StatusOK) {
+	if resp.StatusCode != http.StatusOK {
 		log.Logger().Error("request do err: statusCode=%d", resp.StatusCode)
 		return err
 	}
@@ -135,13 +144,13 @@ func PostForm(urlStr string, data url.Values,out interface{}) error  {
 	log.Logger().Infof("http response<--: %s", string(respBytes))
 	//byte数组直接转成string，优化内存
 	//str := (*string)(unsafe.Pointer(&respBytes))
-	if(out == nil){
+	if out == nil {
 		return nil
 	}
 	err = json.Unmarshal(respBytes, out)
 	if err != nil {
 		log.Logger().Error("json Unmarshal err", err)
-		return err;
+		return err
 	}
 	return nil
 
