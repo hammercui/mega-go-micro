@@ -28,12 +28,18 @@ func ReadPostJsonV2(c *gin.Context) []byte {
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	return body
 }
-func getReqHash()  string{
-	timeStamp := time.Now().UnixNano()
-	nodeId,_ := strconv.Atoi(conf.GetConf().AppConf.NodeId)
-	offset := int64(nodeId * 100000000000000000000)
+
+//生成http请求签名
+func genReqSign() string {
+	timeStamp := time.Now().UnixNano() / 1e6
+	nodeIdStr := "1"
+	if conf.GetConf() != nil && conf.GetConf().AppConf != nil {
+		nodeIdStr = conf.GetConf().AppConf.NodeId
+	}
+	nodeId, _ := strconv.Atoi(nodeIdStr)
+	offset := int64(nodeId) * int64(1000000000000)
 	newTimeStamp := timeStamp + offset
-	return fmt.Sprintf("%d",newTimeStamp)
+	return fmt.Sprintf("%d", newTimeStamp)
 }
 
 func PostJson(url string, v interface{}, out interface{}) error {
@@ -44,9 +50,9 @@ func PostJson(url string, v interface{}, out interface{}) error {
 	//if (millSec > int(conf.Config.Server.PhpTimeOut)) {
 	//	timeout = time.Duration(millSec) * time.Millisecond
 	//}
-	reqHash := getReqHash()
-	log.Logger().Infof("[%s]http request-->: url[%s]",reqHash, url)
-	log.Logger().Infof("[%s]http request->:timeout:%d",reqHash, timeout)
+	reqSign := genReqSign()
+	log.Logger().Infof("[%s]http request-->: url[%s]", reqSign, url)
+	log.Logger().Infof("[%s]http request->:timeout:%v", reqSign, timeout)
 	client := &http.Client{
 		Timeout: timeout,
 	}
@@ -59,40 +65,40 @@ func PostJson(url string, v interface{}, out interface{}) error {
 		if vbyte, err := json.Marshal(v); err == nil {
 			bytesData = vbyte
 		} else {
-			log.Logger().Errorf("json Marshal err:%+v", err)
+			log.Logger().Errorf("[%s]json Marshal err:%+v", reqSign, err)
 			return err
 		}
 	}
-	log.Logger().Infof("[%s]http request->:body[%s]",reqHash, string(bytesData))
+	log.Logger().Infof("[%s]http request->:%s", reqSign, string(bytesData))
 	//logger.Debug(fmt.Sprintf("http request-->url: %s",url))
 	//logger.Debug(fmt.Sprintf("http request-->data: %s",string(bytesData)))
 	reader := bytes.NewReader(bytesData)
 	request, err := http.NewRequest("POST", url, reader)
 	if err != nil {
-		log.Logger().Errorf("[%s]http request err:%+v",reqHash, err)
+		log.Logger().Errorf("[%s]http request err:%+v", reqSign, err)
 		return err
 	}
 	request.Header.Set("Content-Type", "application/json;charset=UTF-8")
 	resp, err := client.Do(request)
 	if err != nil {
-		log.Logger().Errorf("[%s]http request do err:%+v",reqHash, err)
+		log.Logger().Errorf("[%s]http request do err:%+v", reqSign, err)
 		return err
 	}
 	//http !=200
 	if resp.StatusCode != http.StatusOK {
-		log.Logger().Errorf("[%s]http request do err: statusCode=%d",reqHash, resp.StatusCode)
+		log.Logger().Errorf("[%s]http request do err: statusCode=%d", reqSign, resp.StatusCode)
 		return err
 	}
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	if err := resp.Body.Close(); err != nil {
-		log.Logger().Errorf("resp.Body close err:%+v", err)
+		log.Logger().Errorf("[%s]resp.Body close err:%+v", reqSign, err)
 		return err
 	}
 	if err != nil {
-		log.Logger().Errorf("respBytes err:%+v", err)
+		log.Logger().Errorf("[%s]respBytes err:%+v", reqSign, err)
 		return err
 	}
-	log.Logger().Infof("[%s]http response<--: %s",reqHash, string(respBytes))
+	log.Logger().Infof("[%s]http response<--: %s", reqSign, string(respBytes))
 	//byte数组直接转成string，优化内存
 	//str := (*string)(unsafe.Pointer(&respBytes))
 	if out == nil {
@@ -100,7 +106,7 @@ func PostJson(url string, v interface{}, out interface{}) error {
 	}
 	err = json.Unmarshal(respBytes, out)
 	if err != nil {
-		log.Logger().Errorf("http json Unmarshal err", err)
+		log.Logger().Errorf("[%s]http json Unmarshal err", reqSign, err)
 		return err
 	}
 	return nil
