@@ -12,7 +12,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/hammercui/mega-go-micro/conf"
 	"github.com/hammercui/mega-go-micro/log"
 	"io/ioutil"
@@ -23,10 +22,15 @@ import (
 	"time"
 )
 
-//从body获得json v2版本
-func ReadPostJsonV2(c *gin.Context) []byte {
-	body, _ := ioutil.ReadAll(c.Request.Body)
-	return body
+type RequestOptions struct {
+	//超时时间
+	Timeout time.Duration
+}
+
+//默认配置
+var DefaultRequestOptions = &RequestOptions{
+	//默认超时10秒
+	Timeout: 10 * time.Second,
 }
 
 //生成http请求签名
@@ -42,19 +46,18 @@ func genReqSign() string {
 	return fmt.Sprintf("%d", newTimeStamp)
 }
 
+//使用默认配置的json请求
 func PostJson(url string, v interface{}, out interface{}) error {
-	//默认值
-	timeout := 10 * time.Second
+	return PostJsonWithOpt(url, v, out, DefaultRequestOptions)
+}
 
-	//大于配置毫秒，按传值计算
-	//if (millSec > int(conf.Config.Server.PhpTimeOut)) {
-	//	timeout = time.Duration(millSec) * time.Millisecond
-	//}
+//自定义配置的json请求
+func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOptions) error {
 	reqSign := genReqSign()
 	log.Logger().Infof("[%s]http request-->: url[%s]", reqSign, url)
-	log.Logger().Infof("[%s]http request->:timeout:%v", reqSign, timeout)
+	log.Logger().Infof("[%s]http request->:timeout:%v", reqSign, opts.Timeout)
 	client := &http.Client{
-		Timeout: timeout,
+		Timeout: opts.Timeout,
 	}
 
 	var bytesData []byte
