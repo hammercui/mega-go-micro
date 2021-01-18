@@ -9,6 +9,7 @@
 package conf
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/BurntSushi/toml"
@@ -29,12 +30,13 @@ const (
 )
 
 type Config struct {
-	AppConf    *AppConf
-	MysqlConf  *MysqlConf
-	RedisConf  *RedisConf
-	MongoConf  *MysqlConf
-	ConsulConf *ConsulConf
-	KafkaConf  *KafkaConf
+	AppConf      *AppConf
+	MysqlConf    *MysqlConf
+	RedisConf    *RedisConf
+	MongoConf    *MysqlConf
+	ConsulConf   *ConsulConf
+	ConfigCenter *ConfigCenter
+	KafkaConf    *KafkaConf
 }
 
 //应用配置
@@ -82,14 +84,19 @@ type MongoConf struct {
 
 //consul配置
 type ConsulConf struct {
-	Addrs   []string `json:"addrs" toml:"addrs"`
-	ConfKey string   `json:"confKey" toml:"confKey"`
+	Addrs []string `json:"addrs" toml:"addrs"`
+}
+
+//配置中心
+type ConfigCenter struct {
+	ConsulAddrs []string `json:"consulAddrs" toml:"consulAddrs"`
+	ConfKey     string   `json:"confKey" toml:"confKey"`
 }
 
 //kafka配置
 type KafkaConf struct {
-	Addrs []string `json:"addrs  toml:"addrs"`
-	Topic string   `json:"topic" toml:"topic"`
+	Addrs  []string `json:"addrs"     toml:"addrs"`
+	Topic string `json:"topic" toml:"topic"`
 }
 
 var configPath string
@@ -118,6 +125,7 @@ func InitConfig() {
 	LoadConfFile("application.toml", &conf.AppConf)
 	//var consulConf ConsulConf
 	LoadConfFile("consul.toml", &conf.ConsulConf)
+	LoadConfFile("configCenter.toml", &conf.ConfigCenter)
 	//var kafkaConf KafkaConf
 	LoadConfFile("kafka.toml", &conf.KafkaConf)
 	LoadConfFile("mongo.toml", &conf.MongoConf)
@@ -137,7 +145,8 @@ func LoadConfFile(fileName string, out interface{}) {
 		log.Fatalf("load config %s fail,err:%v", fileName, err)
 		os.Exit(0)
 	} else {
-		fmt.Printf("load config:%s, success:%+v\n", fileName, out)
+		bytes, _ := json.Marshal(out)
+		fmt.Printf("load config:%s, success! configs:%+v\n", fileName, string(bytes))
 	}
 }
 

@@ -35,8 +35,8 @@ type ConfWatch struct {
 func NewConfWatch() *ConfWatch {
 	env := conf.GetConf().AppConf.Env
 	key := "werewolf_conf"
-	if len(conf.GetConf().ConsulConf.ConfKey) != 0 {
-		key = conf.GetConf().ConsulConf.ConfKey
+	if len(conf.GetConf().ConfigCenter.ConfKey) != 0 {
+		key = conf.GetConf().ConfigCenter.ConfKey
 	}
 	consulConfPre := fmt.Sprintf("/%s/%s", env, key)
 
@@ -48,7 +48,7 @@ func NewConfWatch() *ConfWatch {
 	//1 配置consul源
 	confWatch.consulSource = consulSrc.NewSource(
 		// optionally specify consul address; default to localhost:8500
-		consulSrc.WithAddress(conf.GetConf().ConsulConf.Addrs[0]),
+		consulSrc.WithAddress(conf.GetConf().ConfigCenter.ConsulAddrs[0]),
 		// optionally specify prefix; defaults to /micro/config
 		consulSrc.WithPrefix(consulConfPre),
 		//// optionally strip the provided prefix from the keys, defaults to false
