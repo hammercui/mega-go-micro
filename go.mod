@@ -21,6 +21,7 @@ require (
 	github.com/lestrrat-go/strftime v1.0.3 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
+	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v2 v2.9.1
 	github.com/micro/go-plugins/broker/kafka/v2 v2.9.1
 	github.com/micro/go-plugins/config/source/consul/v2 v2.9.1
