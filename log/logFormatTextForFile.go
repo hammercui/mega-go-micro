@@ -217,9 +217,9 @@ func (f *FileTextFormatter) Format(entry *lg.Entry) ([]byte, error) {
 	if timestampFormat == "" {
 		timestampFormat = defaultTimestampFormat
 	}
-	if f.isColored() {
-		f.printColored(b, entry, keys, data, timestampFormat)
-	} else {
+	//if f.isColored() {
+	//	f.printColored(b, entry, keys, data, timestampFormat)
+	//} else {
 		//固定内容
 		//时间
 		timestamp := fmt.Sprintf("[%s]", entry.Time.Format(timestampFormat))
@@ -255,7 +255,7 @@ func (f *FileTextFormatter) Format(entry *lg.Entry) ([]byte, error) {
 			}
 
 		}
-	}
+	//}
 
 	b.WriteByte('\n')
 	return b.Bytes(), nil
