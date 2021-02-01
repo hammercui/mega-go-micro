@@ -191,7 +191,7 @@ type HttpResponse struct {
 func dieFail(err error, c *gin.Context) {
 	sentry.CaptureException(err)
 	sentry.Flush(2 * time.Second)
-	c.JSON(http.StatusOK, HttpResponse{
+	c.JSON(http.StatusBadRequest, HttpResponse{
 		Code:   400,
 		Sign:   400,
 		Msg:    err.Error(),

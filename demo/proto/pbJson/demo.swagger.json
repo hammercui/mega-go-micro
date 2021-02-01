@@ -54,6 +54,10 @@
         },
         "cookie": {
           "type": "string"
+        },
+        "num": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },

@@ -19,6 +19,7 @@ service Demo {
 message CommReq {
   string userNo = 1;
   string cookie = 2; //cookie
+  int32  num = 3;
 }
 message DemoResp{
   //注释: 1 success 其他失败
