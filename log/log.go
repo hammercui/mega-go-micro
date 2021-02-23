@@ -10,11 +10,11 @@ package log
 
 import (
 	"fmt"
+	"github.com/hammercui/mega-go-micro/conf"
 	"github.com/micro/go-micro/v2/logger"
 	lr "github.com/micro/go-plugins/logger/logrus/v2"
 	"github.com/sirupsen/logrus"
 	"os"
-	"github.com/hammercui/mega-go-micro/conf"
 )
 
 var logrusSingle *logrus.Entry
@@ -24,9 +24,9 @@ func InitLog() {
 	appConfig := conf.GetConf().AppConf
 	nodeId := appConfig.NodeId
 
-	//是否使用通用topic
+	//是否使用通用topic werewolf-web-activity-{env}-log为通用topic,供多个项目使用
 	topic := fmt.Sprintf("werewolf-web-activity-%s-log", appConfig.Env)
-	if customTopic,ok := appConfig.Custom["kafkaHookTopic"];ok && customTopic != ""{
+	if customTopic, ok := appConfig.Custom["kafkaHookTopic"]; ok && customTopic != "" {
 		topic = customTopic
 	}
 
@@ -60,7 +60,7 @@ func InitLog() {
 	})
 	logger.DefaultLogger = l
 	//打印配置
-	logrusSingle.Info("consul配置", conf.GetConf().ConsulConf)
+	logrusSingle.Info("load consul配置信息:", conf.GetConf().ConsulConf)
 }
 
 //获得日志实例

@@ -1,5 +1,6 @@
-addr="192.168.2.20:6379"
-password=""
-dbIndex=8   #redis只需要数据库序号
-sentinels=[
+addr = "192.168.2.20:6379"
+password = ""
+dbIndex = 8   #redis只需要数据库序号
+sentinels = [
+    "192.168.2.20:27000"
 ]

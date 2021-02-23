@@ -13,18 +13,14 @@ package main
 
 import (
 	infra "github.com/hammercui/mega-go-micro"
-	"github.com/hammercui/mega-go-micro/log"
-	"time"
+	"github.com/hammercui/mega-go-micro/demo/http"
+	"github.com/hammercui/mega-go-micro/demo/rpc"
 )
 
 func main() {
 	app := infra.InitApp()
-
-	//log.Logger().Info("22222222222222222222222")
-	//启动http
-
-	log.Logger().Info(app.Broker.String())
-	time.Sleep(10000)
-	//启动rpc
-	// rpc.Start(app)
+	// 启动http服务
+	go http.Start(app)
+	// 启动rpc
+	rpc.Start(app)
 }

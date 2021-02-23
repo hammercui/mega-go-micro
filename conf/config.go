@@ -9,6 +9,7 @@
 package conf
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/BurntSushi/toml"
@@ -29,66 +30,73 @@ const (
 )
 
 type Config struct {
-	AppConf    *AppConf
-	MysqlConf  *MysqlConf
-	RedisConf  *RedisConf
-	MongoConf  *MysqlConf
-	ConsulConf *ConsulConf
-	KafkaConf  *KafkaConf
+	AppConf      *AppConf
+	MysqlConf    *MysqlConf
+	RedisConf    *RedisConf
+	MongoConf    *MysqlConf
+	ConsulConf   *ConsulConf
+	ConfigCenter *ConfigCenter
+	KafkaConf    *KafkaConf
 }
 
 //应用配置
 type AppConf struct {
-	Group          string            `toml:"group"`
-	Name           string            `toml:"name"`
-	Region         string            `toml:"region"`
-	Ip             string            `toml:"ip"`
-	NodeId         string            `toml:"nodeId"`
-	Env            AppEnv            `toml:"env"`
-	Custom         map[string]string `toml:"custom"`
+	Group          string            `json:"group"         toml:"group"`
+	Name           string            `json:"name"         toml:"name"`
+	Region         string            `json:"region"         toml:"region"`
+	Ip             string            `json:"ip"         toml:"ip"`
+	NodeId         string            `json:"nodeId"         toml:"nodeId"`
+	Env            AppEnv            `json:"env"         toml:"env"`
+	Custom         map[string]string `json:"custom"         toml:"custom"`
 	FullAppName    string
-	HttpPort       int      `toml:"httpPort"`
-	RpcPort        int      `toml:"rpcPort"`
-	KafkaHookAddrs []string `toml:"kafkaHookAddrs"`
+	HttpPort       int      `json:"httpPort"      toml:"httpPort"`
+	RpcPort        int      `json:"rpcPort"      toml:"rpcPort"`
+	KafkaHookAddrs []string `json:"kafkaHookAddrs"      toml:"kafkaHookAddrs"`
 }
 
 //mysql配置
 type MysqlConf struct {
-	DbName   string `toml:"dbName"`
-	Addr     string `toml:"addr"`
-	ReadAddr string `toml:"readAddr"`
-	Username string `toml:"username"`
-	Password string `toml:"password"`
-	Charset  string `toml:"charset"`
+	DbName   string `json:"dbName" toml:"dbName"`
+	Addr     string `json:"addr" toml:"addr"`
+	ReadAddr string `json:"readAddr" toml:"readAddr"`
+	Username string `json:"username" toml:"username"`
+	Password string `json:"password" toml:"password"`
+	Charset  string `json:"charset" toml:"charset"`
 	//sql执行警告阈值，毫秒
-	WarnThreshold time.Duration `toml:"warnThreshold"`
+	WarnThreshold time.Duration `json:"warnThreshold" toml:"warnThreshold"`
 }
 
 //redis配置
 type RedisConf struct {
-	Addr      string   `toml:"addr"`
-	Password  string   `toml:"password"`
-	DbIndex   int      `toml:"dbIndex"`
-	Sentinels []string `toml:"sentinels"` //redis sentinel列表
+	Addr      string   `json:"addr"      toml:"addr"`
+	Password  string   `json:"password"  toml:"password"`
+	DbIndex   int      `json:"dbIndex"   toml:"dbIndex"`
+	Sentinels []string `json:"sentinels" toml:"sentinels"` //redis sentinel列表
 }
 
 //mongo配置
 type MongoConf struct {
-	Addr     string `toml:"addr"`
-	DbName   string `toml:"dbName"`
-	Username string `toml:"username"`
-	Password string `toml:"password"`
+	Addr     string `json:"addr"     toml:"addr"`
+	DbName   string `json:"dbName"   toml:"dbName"`
+	Username string `json:"username" toml:"username"`
+	Password string `json:"password" toml:"password"`
 }
 
 //consul配置
 type ConsulConf struct {
-	Addrs []string `toml:"addrs"`
+	Addrs []string `json:"addrs" toml:"addrs"`
+}
+
+//配置中心
+type ConfigCenter struct {
+	ConsulAddrs []string `json:"consulAddrs" toml:"consulAddrs"`
+	ConfKey     string   `json:"confKey" toml:"confKey"`
 }
 
 //kafka配置
 type KafkaConf struct {
-	Addrs []string `toml:"addrs"`
-	Topic string   `toml:"topic"`
+	Addrs  []string `json:"addrs"     toml:"addrs"`
+	Topic string `json:"topic" toml:"topic"`
 }
 
 var configPath string
@@ -117,6 +125,7 @@ func InitConfig() {
 	LoadConfFile("application.toml", &conf.AppConf)
 	//var consulConf ConsulConf
 	LoadConfFile("consul.toml", &conf.ConsulConf)
+	LoadConfFile("configCenter.toml", &conf.ConfigCenter)
 	//var kafkaConf KafkaConf
 	LoadConfFile("kafka.toml", &conf.KafkaConf)
 	LoadConfFile("mongo.toml", &conf.MongoConf)
@@ -136,7 +145,8 @@ func LoadConfFile(fileName string, out interface{}) {
 		log.Fatalf("load config %s fail,err:%v", fileName, err)
 		os.Exit(0)
 	} else {
-		fmt.Printf("load config:%s, success:%+v\n", fileName, out)
+		bytes, _ := json.Marshal(out)
+		fmt.Printf("load config:%s, success! configs:%+v\n", fileName, string(bytes))
 	}
 }
 
