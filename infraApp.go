@@ -11,12 +11,14 @@ package infra
 import (
 	"fmt"
 	"github.com/go-redis/redis"
+	"github.com/hammercui/go2sky"
 	infraBroker "github.com/hammercui/mega-go-micro/broker"
 	"github.com/hammercui/mega-go-micro/conf"
 	"github.com/hammercui/mega-go-micro/log"
 	"github.com/hammercui/mega-go-micro/mysql"
 	infraRedis "github.com/hammercui/mega-go-micro/redis"
 	"github.com/hammercui/mega-go-micro/registry/consul"
+	"github.com/hammercui/mega-go-micro/tracer"
 	"github.com/hammercui/mega-go-micro/watch"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/client/selector"
@@ -36,6 +38,8 @@ type InfraApp struct {
 	//配置中心
 	ConfWatch *watch.ConfWatch
 	//todo mongo连接
+	//链路追踪
+	SkyWalking *go2sky.Tracer
 }
 
 var app InfraApp
@@ -60,6 +64,8 @@ func InitApp() *InfraApp {
 	//6 init broker
 	brokerIns := infraBroker.NewKafkaBroker()
 
+	skyWalking := tracer.NewSkyTracer()
+
 	//7 初始化
 	app = InfraApp{
 		ReadOnlyDB:  mysql.NewMysqlReadOnly(),
@@ -69,6 +75,7 @@ func InitApp() *InfraApp {
 		RedisClient: redisClient,
 		Broker:      brokerIns,
 		ConfWatch:   confWatch,
+		SkyWalking:  skyWalking,
 	}
 	//8 监听配置
 	regisConfWatch()

@@ -5,6 +5,7 @@ go 1.13
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
 require (
+	github.com/hammercui/go2sky v1.0.5
 	github.com/BurntSushi/toml v0.3.1
 	github.com/Shopify/sarama v1.25.0
 	github.com/bitly/go-simplejson v0.5.0
