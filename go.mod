@@ -5,7 +5,6 @@ go 1.13
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
 require (
-	github.com/hammercui/go2sky v1.0.5
 	github.com/BurntSushi/toml v0.3.1
 	github.com/Shopify/sarama v1.25.0
 	github.com/bitly/go-simplejson v0.5.0
@@ -13,8 +12,9 @@ require (
 	github.com/getsentry/sentry-go v0.9.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/golang/protobuf v1.4.2
+	github.com/golang/protobuf v1.4.3
 	github.com/grpc-ecosystem/grpc-gateway v1.14.7
+	github.com/hammercui/go2sky v1.0.5
 	github.com/hashicorp/consul/api v1.6.0
 	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3
@@ -27,6 +27,7 @@ require (
 	github.com/micro/go-plugins/broker/kafka/v2 v2.9.1
 	github.com/micro/go-plugins/config/source/consul/v2 v2.9.1
 	github.com/micro/go-plugins/logger/logrus/v2 v2.9.1
+	github.com/micro/go-plugins/wrapper/trace/opentracing/v2 v2.9.1
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5

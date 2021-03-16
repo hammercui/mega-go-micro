@@ -20,6 +20,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/server"
 	"strconv"
+	//"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 )
 
 func Start(app *infra.InfraApp) {
@@ -37,6 +38,7 @@ func Start(app *infra.InfraApp) {
 			"ip":      appConf.Ip,
 			"port":    strconv.Itoa(appConf.RpcPort),
 		}),
+		//micro.WrapHandler(opentracing.NewHandlerWrapper())
 	)
 	service.Init()
 

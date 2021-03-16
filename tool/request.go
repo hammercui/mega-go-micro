@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/hammercui/mega-go-micro/conf"
 	"github.com/hammercui/mega-go-micro/log"
 	"io/ioutil"
@@ -25,6 +26,10 @@ import (
 type RequestOptions struct {
 	//超时时间
 	Timeout time.Duration
+	//ginContext
+	ginCtx *gin.Context
+	//ctx
+
 }
 
 //默认配置
@@ -59,6 +64,7 @@ func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOp
 	client := &http.Client{
 		Timeout: opts.Timeout,
 	}
+	//处理span探针
 
 	var bytesData []byte
 	//v是字符串

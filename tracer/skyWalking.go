@@ -28,8 +28,11 @@ func NewSkyTracer() *go2sky.Tracer {
 	webName := fmt.Sprintf("%s-%s-api-%s", appConf.Group, appConf.Name, appConf.Env)
 	webId := fmt.Sprintf("%s-%s", webName, appConf.NodeId)
 	skyWalkingAddr := "172.25.220.245:11800"
-	if addr ,ok := appConf.Custom["skyAddr"];ok && len(addr) >0 {
+	if addr, ok := appConf.Custom["skyAddr"]; ok && len(addr) > 0 {
 		skyWalkingAddr = addr
+	} else {
+		//配置文件没有skyAddr,不建立连接
+		return nil
 	}
 	r, err := reporter.NewGRPCReporter(skyWalkingAddr)
 	if err != nil {
