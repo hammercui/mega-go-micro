@@ -9,7 +9,7 @@
  * Mail: hammercui@163.com
  *
  */
-package http
+package gin
 
 import (
 	"github.com/getsentry/sentry-go"

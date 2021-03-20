@@ -18,7 +18,7 @@ import (
 	"github.com/hammercui/mega-go-micro/demo/handler"
 	"github.com/hammercui/mega-go-micro/demo/http/middleware"
 	pbGo "github.com/hammercui/mega-go-micro/demo/proto/pbGo"
-	infraHttp "github.com/hammercui/mega-go-micro/http"
+	"github.com/hammercui/mega-go-micro/http/gin"
 	"github.com/hammercui/mega-go-micro/log"
 	"github.com/micro/go-micro/v2/web"
 	"os"
@@ -27,7 +27,7 @@ import (
 )
 
 func Start(app *infra.InfraApp) {
-	ginServer := infraHttp.NewMegaGinServer(app,
+	ginServer := gin.NewMegaGinServer(app,
 		middleware.Logger(),
 		middleware.Recovery(),
 	)
@@ -75,7 +75,7 @@ func Start(app *infra.InfraApp) {
 	}
 }
 
-func registerRouter(app *infra.InfraApp, ginServer *infraHttp.GinServer) {
+func registerRouter(app *infra.InfraApp, ginServer *gin.GinServer) {
 	//demo
 	pbGo.RegisterDemoHandler(ginServer.Server(), handler.NewDemoService(app))
 }

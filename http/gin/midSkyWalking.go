@@ -9,14 +9,14 @@
  * Mail: hammercui@163.com
  *
  */
-package middleware
+package gin
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/hammercui/go2sky"
 	"github.com/hammercui/go2sky/propagation"
 	v3 "github.com/hammercui/go2sky/reporter/grpc/language-agent"
-	"github.com/gin-gonic/gin"
 	"strconv"
 	"sync"
 	"time"

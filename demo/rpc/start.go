@@ -17,15 +17,16 @@ import (
 	"github.com/hammercui/mega-go-micro/conf"
 	"github.com/hammercui/mega-go-micro/demo/handler"
 	pbGo "github.com/hammercui/mega-go-micro/demo/proto/pbGo"
+	"github.com/hammercui/mega-go-micro/tracer/skyWalking"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/server"
 	"strconv"
-	//"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 )
 
 func Start(app *infra.InfraApp) {
 	appConf := conf.GetConf().AppConf
 	rpcName := fmt.Sprintf("%s-%s-rpc-%s", appConf.Group, appConf.Name, appConf.Env)
+	trace := skyWalking.NewSkyTracer()
 	// New Service
 	// 创建新的服务，这里可以传入其它选项。
 	service := micro.NewService(
@@ -38,7 +39,7 @@ func Start(app *infra.InfraApp) {
 			"ip":      appConf.Ip,
 			"port":    strconv.Itoa(appConf.RpcPort),
 		}),
-		//micro.WrapHandler(opentracing.NewHandlerWrapper())
+		micro.WrapHandler(skyWalking.NewHandlerWrapper(trace, "User-Agent")),
 	)
 	service.Init()
 

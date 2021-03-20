@@ -9,7 +9,7 @@
  * Mail: hammercui@163.com
  *
  */
-package tracer
+package skyWalking
 
 import (
 	"fmt"

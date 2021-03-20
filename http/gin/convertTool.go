@@ -9,7 +9,7 @@
  * Mail: hammercui@163.com
  *
  */
-package middleware
+package gin
 
 import (
 	"context"

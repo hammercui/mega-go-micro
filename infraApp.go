@@ -18,7 +18,7 @@ import (
 	"github.com/hammercui/mega-go-micro/mysql"
 	infraRedis "github.com/hammercui/mega-go-micro/redis"
 	"github.com/hammercui/mega-go-micro/registry/consul"
-	"github.com/hammercui/mega-go-micro/tracer"
+	skyWalking2 "github.com/hammercui/mega-go-micro/tracer/skyWalking"
 	"github.com/hammercui/mega-go-micro/watch"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/client/selector"
@@ -64,7 +64,7 @@ func InitApp() *InfraApp {
 	//6 init broker
 	brokerIns := infraBroker.NewKafkaBroker()
 
-	skyWalking := tracer.NewSkyTracer()
+	skyWalking := skyWalking2.NewSkyTracer()
 
 	//7 初始化
 	app = InfraApp{
