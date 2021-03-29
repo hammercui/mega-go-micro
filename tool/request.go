@@ -36,8 +36,6 @@ type RequestOptions struct {
 	ctx context.Context
 	//使用skyWalking作为链路追踪
 	skyWalking *go2sky.Tracer
-	//目标服务名
-	remoteServerName string
 }
 
 //默认配置
@@ -96,7 +94,7 @@ func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOp
 	request.Header.Set("Content-Type", "application/json;charset=UTF-8")
 	resp, err := client.Do(request)
 	//2 插入链路追踪
-	InjectRequestTrace(url, opts, request)
+	InjectRequestTrace(opts, request)
 	if err != nil {
 		log.Logger().Errorf("[%s]http request do err:%+v", reqSign, err)
 		return err
@@ -131,12 +129,16 @@ func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOp
 }
 
 //http request 请求注入链路追踪
-func InjectRequestTrace(url string, opts *RequestOptions, request *http.Request) {
+func InjectRequestTrace(opts *RequestOptions, request *http.Request) {
 	//处理span探针
 	if opts.skyWalking != nil && opts.ginCtx != nil {
+		operationName := request.URL.Path
+		if request.Method != "GET" {
+			operationName = fmt.Sprintf("{%s}%s", request.Method, request.URL.Path)
+		}
 		// 出去必须用这个携带header
-		span, err := opts.skyWalking.CreateExitSpan(opts.ginCtx.Request.Context(), "invoke - "+opts.remoteServerName,
-			url, func(header string) error {
+		span, err := opts.skyWalking.CreateExitSpan(opts.ginCtx.Request.Context(), operationName,
+			request.RequestURI, func(header string) error {
 				request.Header.Set(propagation.Header, header)
 				return nil
 			})
@@ -146,7 +148,7 @@ func InjectRequestTrace(url string, opts *RequestOptions, request *http.Request)
 		}
 		span.SetComponent(2)
 		span.Tag(go2sky.TagHTTPMethod, request.Method)
-		span.Tag(go2sky.TagURL, url)
+		span.Tag(go2sky.TagURL, request.URL.String())
 		span.SetSpanLayer(v3.SpanLayer_Http)
 		span.End()
 	}

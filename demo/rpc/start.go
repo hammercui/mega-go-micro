@@ -26,7 +26,6 @@ import (
 func Start(app *infra.InfraApp) {
 	appConf := conf.GetConf().AppConf
 	rpcName := fmt.Sprintf("%s-%s-rpc-%s", appConf.Group, appConf.Name, appConf.Env)
-	trace := skyWalking.NewSkyTracer()
 	// New Service
 	// 创建新的服务，这里可以传入其它选项。
 	service := micro.NewService(
@@ -39,7 +38,7 @@ func Start(app *infra.InfraApp) {
 			"ip":      appConf.Ip,
 			"port":    strconv.Itoa(appConf.RpcPort),
 		}),
-		micro.WrapHandler(skyWalking.NewHandlerWrapper(trace, "User-Agent")),
+		micro.WrapHandler(skyWalking.NewHandlerWrapper(app.SkyWalking, "User-Agent")),
 	)
 	service.Init()
 

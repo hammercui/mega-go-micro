@@ -54,9 +54,17 @@ func SkyWalking(engine *gin.Engine, tracer *go2sky.Tracer) gin.HandlerFunc {
 					mm = make(map[string]routeInfo)
 					rm[r.Method] = mm
 				}
-				mm[r.Handler] = routeInfo{
-					operationName: fmt.Sprintf("/%s%s", r.Method, r.Path),
+				//post等修改为{POST},get不变
+				if r.Method == "GET" {
+					mm[r.Handler] = routeInfo{
+						operationName: r.Path,
+					}
+				} else {
+					mm[r.Handler] = routeInfo{
+						operationName: fmt.Sprintf("{%s}%s", r.Method, r.Path),
+					}
 				}
+
 			}
 			m.routeMap = rm
 		})
