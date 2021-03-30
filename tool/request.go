@@ -138,7 +138,7 @@ func InjectRequestTrace(opts *RequestOptions, request *http.Request) {
 		}
 		// 出去必须用这个携带header
 		span, err := opts.SkyWalking.CreateExitSpan(opts.GinCtx.Request.Context(), operationName,
-			request.RequestURI, func(header string) error {
+			request.URL.String(), func(header string) error {
 				request.Header.Set(propagation.Header, header)
 				return nil
 			})
