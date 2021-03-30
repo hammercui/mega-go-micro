@@ -31,11 +31,11 @@ type RequestOptions struct {
 	//超时时间
 	Timeout time.Duration
 	//ginContext
-	ginCtx *gin.Context
+	GinCtx *gin.Context
 	//ctx
-	ctx context.Context
+	Ctx context.Context
 	//使用skyWalking作为链路追踪
-	skyWalking *go2sky.Tracer
+	SkyWalking *go2sky.Tracer
 }
 
 //默认配置
@@ -131,13 +131,13 @@ func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOp
 //http request 请求注入链路追踪
 func InjectRequestTrace(opts *RequestOptions, request *http.Request) {
 	//处理span探针
-	if opts.skyWalking != nil && opts.ginCtx != nil {
+	if opts.SkyWalking != nil && opts.GinCtx != nil {
 		operationName := request.URL.Path
 		if request.Method != "GET" {
 			operationName = fmt.Sprintf("{%s}%s", request.Method, request.URL.Path)
 		}
 		// 出去必须用这个携带header
-		span, err := opts.skyWalking.CreateExitSpan(opts.ginCtx.Request.Context(), operationName,
+		span, err := opts.SkyWalking.CreateExitSpan(opts.GinCtx.Request.Context(), operationName,
 			request.RequestURI, func(header string) error {
 				request.Header.Set(propagation.Header, header)
 				return nil
