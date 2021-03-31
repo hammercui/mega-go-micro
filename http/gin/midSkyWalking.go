@@ -12,7 +12,6 @@
 package gin
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/hammercui/go2sky"
 	"github.com/hammercui/go2sky/propagation"
@@ -42,40 +41,16 @@ func SkyWalking(engine *gin.Engine, tracer *go2sky.Tracer) gin.HandlerFunc {
 			c.Next()
 		}
 	}
-	m := new(middleware)
 
 	return func(c *gin.Context) {
-		m.routeMapOnce.Do(func() {
-			routes := engine.Routes()
-			rm := make(map[string]map[string]routeInfo)
-			for _, r := range routes {
-				mm := rm[r.Method]
-				if mm == nil {
-					mm = make(map[string]routeInfo)
-					rm[r.Method] = mm
-				}
-				//post等修改为{POST},get不变
-				if r.Method == "GET" {
-					mm[r.Handler] = routeInfo{
-						operationName: r.Path,
-					}
-				} else {
-					mm[r.Handler] = routeInfo{
-						operationName: fmt.Sprintf("{%s}%s", r.Method, r.Path),
-					}
-				}
-
-			}
-			m.routeMap = rm
-		})
-		var operationName string
-		handlerName := c.HandlerName()
-		if routeInfo, ok := m.routeMap[c.Request.Method][handlerName]; ok {
-			operationName = routeInfo.operationName
+		if c.Request.URL.Path == "/" {
+			c.Next()
+			return
 		}
-		if operationName == "" {
-			operationName = c.Request.Method
-		}
+		var operationName = c.Request.URL.Path
+		//if c.Request.Method != "GET" {
+		//	operationName = fmt.Sprintf("{%s}%s", c.Request.Method, c.Request.URL.Path)
+		//}
 		span, ctx, err := tracer.CreateEntrySpan(c.Request.Context(), operationName, func() (string, error) {
 			return c.Request.Header.Get(propagation.Header), nil
 		})
@@ -84,8 +59,9 @@ func SkyWalking(engine *gin.Engine, tracer *go2sky.Tracer) gin.HandlerFunc {
 			return
 		}
 		span.SetComponent(httpServerComponentID)
+		span.SetPeer(c.Request.Host)
 		span.Tag(go2sky.TagHTTPMethod, c.Request.Method)
-		span.Tag(go2sky.TagURL, c.Request.Host+c.Request.URL.Path)
+		span.Tag(go2sky.TagURL, c.Request.URL.String())
 		span.SetSpanLayer(v3.SpanLayer_Http)
 
 		c.Request = c.Request.WithContext(ctx)

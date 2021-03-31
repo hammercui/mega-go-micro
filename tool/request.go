@@ -6,6 +6,7 @@
 @File : request
 @Company: Sdbean
 */
+
 package tool
 
 import (
@@ -36,6 +37,8 @@ type RequestOptions struct {
 	Ctx context.Context
 	//使用skyWalking作为链路追踪
 	SkyWalking *go2sky.Tracer
+	//目标-服务实例名
+	ServerNode string
 }
 
 //默认配置
@@ -92,9 +95,10 @@ func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOp
 		return err
 	}
 	request.Header.Set("Content-Type", "application/json;charset=UTF-8")
-	resp, err := client.Do(request)
 	//2 插入链路追踪
 	InjectRequestTrace(opts, request)
+	resp, err := client.Do(request)
+
 	if err != nil {
 		log.Logger().Errorf("[%s]http request do err:%+v", reqSign, err)
 		return err
@@ -133,12 +137,9 @@ func InjectRequestTrace(opts *RequestOptions, request *http.Request) {
 	//处理span探针
 	if opts.SkyWalking != nil && opts.GinCtx != nil {
 		operationName := request.URL.Path
-		if request.Method != "GET" {
-			operationName = fmt.Sprintf("{%s}%s", request.Method, request.URL.Path)
-		}
-		// 出去必须用这个携带header
+		// 必须用这个携带header,从context获得
 		span, err := opts.SkyWalking.CreateExitSpan(opts.GinCtx.Request.Context(), operationName,
-			request.URL.String(), func(header string) error {
+			opts.ServerNode, func(header string) error {
 				request.Header.Set(propagation.Header, header)
 				return nil
 			})
