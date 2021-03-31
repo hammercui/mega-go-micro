@@ -35,7 +35,7 @@ type middleware struct {
 }
 
 //Middleware gin middleware return HandlerFunc  with tracing.
-func SkyWalking(engine *gin.Engine, tracer *go2sky.Tracer) gin.HandlerFunc {
+func SkyWalkingMiddleware(engine *gin.Engine, tracer *go2sky.Tracer) gin.HandlerFunc {
 	if engine == nil || tracer == nil {
 		return func(c *gin.Context) {
 			c.Next()

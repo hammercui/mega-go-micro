@@ -38,6 +38,7 @@ func Start(app *infra.InfraApp) {
 	appConf := conf.GetConf().AppConf
 	webName := fmt.Sprintf("%s-%s-api-%s", appConf.Group, appConf.Name, appConf.Env)
 	webId := fmt.Sprintf("%s-%s", webName, appConf.NodeId)
+
 	//注册服务发现
 	httpService := web.NewService(
 		web.Name(webName),
@@ -76,6 +77,12 @@ func Start(app *infra.InfraApp) {
 }
 
 func registerRouter(app *infra.InfraApp, ginServer *gin.GinServer) {
+	//链路追踪
+	if app.SkyWalking != nil {
+		//ginRouter.Use(hammerHttp.SkyWalking(ginRouter, trace))
+		ginServer.Gin().Use(gin.SkyWalkingMiddleware(ginServer.Gin(), app.SkyWalking))
+	}
+
 	//demo
 	pbGo.RegisterDemoHandler(ginServer.Server(), handler.NewDemoService(app))
 }
