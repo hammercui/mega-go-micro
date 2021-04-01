@@ -35,11 +35,11 @@ func (p *BaseDao) GetReadWriteDB() *gorm.DB {
 func (p *BaseDao) SelectCustom(out []interface{}, sqlStr string, values ...interface{}) error {
 	type1 := reflect.TypeOf(out)
 	if type1.Kind() != reflect.Slice {
-		log.Logger().Error("第一个参数必须是interface切片,sql:",sqlStr)
+		log.Logger().Error("第一个参数必须是interface切片,sql:", sqlStr)
 		return errors.New("第一个参数必须是interface切片")
 	}
 	if len(out) == 0 {
-		log.Logger().Error("第一个参数长度不能为空,sql:",sqlStr)
+		log.Logger().Error("第一个参数长度不能为空,sql:", sqlStr)
 		return errors.New("第一个参数长度不能为空")
 	}
 	var row *gorm.DB
@@ -63,7 +63,7 @@ func (p *BaseDao) SelectCustom(out []interface{}, sqlStr string, values ...inter
 func (p *BaseDao) SelectOne(out interface{}, sqlStr string, values ...interface{}) error {
 	type1 := reflect.TypeOf(out)
 	if type1.Kind() != reflect.Ptr {
-		log.Logger().Error("第一个参数必须是指针,sql:",sqlStr)
+		log.Logger().Error("第一个参数必须是指针,sql:", sqlStr)
 		return errors.New("第一个参数必须是指针")
 	}
 	var row *gorm.DB
@@ -113,6 +113,20 @@ func (p *BaseDao) SelectAll(outs interface{}, sqlStr string, values ...interface
 		newSlice := reflect.Append(reflect.ValueOf(outs).Elem(), elem)
 		// 扩容后的slice赋值给*outs
 		reflect.ValueOf(outs).Elem().Set(newSlice)
+	}
+	return nil
+}
+
+//插入orm对象
+func (p *BaseDao) Insert(record interface{}) error {
+	type1 := reflect.TypeOf(record)
+	if type1.Kind() != reflect.Ptr {
+		log.Logger().Errorf("record必须是指针,record:%+v", record)
+		return errors.New("record必须是指针")
+	}
+	result := p.app.ReadWriteDB.Create(record)
+	if result.Error != nil {
+		log.Logger().Errorf("insert record:%+v,error:%+v", record, result.Error)
 	}
 	return nil
 }
