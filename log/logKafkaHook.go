@@ -10,12 +10,10 @@ package log
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Shopify/sarama"
-	"github.com/sirupsen/logrus"
-	"log"
-	"time"
 	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/sirupsen/logrus"
+	"time"
 )
 
 type KafkaHook struct {
@@ -49,7 +47,7 @@ func NewKafkaHook(id string, levels []logrus.Level, formatter logrus.Formatter, 
 	// Note: messages will only be returned here after all retry attempts are exhausted.
 	go func() {
 		for err := range producer.Errors() {
-			log.Printf("Failed to send log entry to kafka: %v\n", err)
+			Logger().Errorf("Failed to send log entry to kafka: %v\n", err)
 		}
 	}()
 
@@ -108,13 +106,16 @@ func (hook *KafkaHook) Fire(entry *logrus.Entry) error {
 
 	value := sarama.ByteEncoder(b)
 
-	for _, topic := range topics {
-		hook.producer.Input() <- &sarama.ProducerMessage{
-			Key:   partitionKey,
-			Topic: topic,
-			Value: value,
+	//写入kafka调整为异步
+	go func() {
+		for _, topic := range topics {
+			hook.producer.Input() <- &sarama.ProducerMessage{
+				Key:   partitionKey,
+				Topic: topic,
+				Value: value,
+			}
 		}
-	}
+	}()
 
 	return nil
 }
@@ -141,7 +142,7 @@ func getKafkaHook() *KafkaHook {
 		appConfig.KafkaHookAddrs,
 	)
 	if err != nil {
-		fmt.Println("kafka err:", err)
+		Logger().Errorf("kafka err:%+v", err)
 	}
 	return hook
 }
