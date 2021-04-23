@@ -25,7 +25,7 @@ func NewSkyTracer() *go2sky.Tracer {
 	if appConf.Env == conf.AppEnv_local {
 		return nil
 	}
-	webName := fmt.Sprintf("%s-%s-api-%s", appConf.Group, appConf.Name, appConf.Env)
+	webName := fmt.Sprintf("%s-%s-%s", appConf.Group, appConf.Name, appConf.Env)
 	webId := fmt.Sprintf("%s-%s", webName, appConf.NodeId)
 	skyWalkingAddr := "172.25.220.245:11800"
 	if addr, ok := appConf.Custom["skyAddr"]; ok && len(addr) > 0 {
