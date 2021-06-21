@@ -39,6 +39,8 @@ type RequestOptions struct {
 	SkyWalking *go2sky.Tracer
 	//目标-服务实例名
 	ServerNode string
+	//请求唯一戳
+	ReqSign string
 }
 
 //默认配置
@@ -60,6 +62,10 @@ func genReqSign() string {
 	return fmt.Sprintf("%d", newTimeStamp)
 }
 
+func GenReqSign() string {
+	return genReqSign()
+}
+
 //使用默认配置的json请求
 func PostJson(url string, v interface{}, out interface{}) error {
 	return PostJsonWithOpt(url, v, out, DefaultRequestOptions)
@@ -67,7 +73,11 @@ func PostJson(url string, v interface{}, out interface{}) error {
 
 //自定义配置的json请求
 func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOptions) error {
-	reqSign := genReqSign()
+	reqSign := opts.ReqSign
+	if len(reqSign) == 0 {
+		reqSign = genReqSign()
+	}
+
 	log.Logger().Infof("[%s]http request-->: url[%s]", reqSign, url)
 	log.Logger().Infof("[%s]http request->:timeout:%v", reqSign, opts.Timeout)
 	client := &http.Client{
