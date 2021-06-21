@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/hammercui/go2sky"
@@ -117,8 +118,9 @@ func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOp
 	//http !=200
 	if resp.StatusCode != http.StatusOK {
 		log.Logger().Errorf("[%s]http request do err: statusCode=%d", reqSign, resp.StatusCode)
-		return err
+		return errors.New(fmt.Sprintf("err: statusCode=%d", resp.StatusCode))
 	}
+
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	if err := resp.Body.Close(); err != nil {
 		log.Logger().Errorf("[%s]resp.Body close err:%+v", reqSign, err)
