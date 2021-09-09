@@ -12,6 +12,7 @@
 package gin
 
 import (
+	"fmt"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	infra "github.com/hammercui/mega-go-micro"
@@ -26,6 +27,11 @@ import (
 type GinServer struct {
 	ginRouter *gin.Engine
 	app       *infra.InfraApp
+	basePath  string
+}
+
+func (p *GinServer) SetBasePath(basePath string) {
+	p.basePath = basePath
 }
 
 func (p *GinServer) NewSubscriber(s string, i interface{}, option ...server.SubscriberOption) server.Subscriber {
@@ -123,6 +129,7 @@ func (a *GinServer) NewHandler(i interface{}, opts ...server.HandlerOption) serv
 
 //注册endpoint实现
 func (p *GinServer) registerEndPointsV2Imp(funName string, method string, path string, service interface{}) {
+	fullPath := fmt.Sprintf("%s%s", p.basePath, path)
 	a := reflect.TypeOf(service)
 	if m, ok := a.MethodByName(funName); ok {
 		log.Logger().Infof("注册service路由成功(post):%s,类%s ,方法%s", path, a.String(), m.Name)
@@ -158,16 +165,15 @@ func (p *GinServer) registerEndPointsV2Imp(funName string, method string, path s
 				}
 			}
 		}
-
 		switch method {
 		case "POST":
-			p.ginRouter.POST(path, a)
+			p.ginRouter.POST(fullPath, a)
 		case "GET":
-			p.ginRouter.GET(path, a)
+			p.ginRouter.GET(fullPath, a)
 		}
 
 	} else {
-		log.Logger().Errorf("注册service路由失败(post):%s,类%s ,未实现方法%s", path, a.String(), funName)
+		log.Logger().Errorf("注册service路由失败(post):%s,类%s ,未实现方法%s", fullPath, a.String(), funName)
 	}
 }
 
