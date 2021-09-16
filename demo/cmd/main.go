@@ -18,7 +18,14 @@ import (
 )
 
 func main() {
-	app := infra.InitApp()
+	app := infra.InitAppWithOpts(&infra.AppOpts{
+		IsConfWatchOn:  true,
+		IsBrokerOn:     true,
+		IsRedisOn:      true,
+		IsMongoOn:      true,
+		IsSqlOn:        true,
+		IsSkyWalkingOn: true,
+	})
 	// 启动http服务
 	go http.Start(app)
 	// 启动rpc
