@@ -33,7 +33,7 @@ func InitAppWithOpts(opts *AppOpts) *InfraApp {
 		op.Addrs = consulConf.Addrs
 	})
 	sel := selector.NewSelector(selector.Registry(reg))
-	app := &InfraApp{
+	app = InfraApp{
 		Reg:      reg,
 		Selector: sel,
 	}
@@ -68,5 +68,5 @@ func InitAppWithOpts(opts *AppOpts) *InfraApp {
 		regisConfWatch()
 	}
 
-	return app
+	return &app
 }
