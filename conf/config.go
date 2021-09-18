@@ -169,6 +169,7 @@ func InitConfigWithOpts(opts *AppOpts) {
 	//fmt.Println("默认配置文件路径", "defaultConfigPath")
 	flag.StringVar(&configPath, "configs", defaultConfigPath, "configs path")
 	flag.StringVar(&LogoutPath, "logout", defaultLogPath, "logout path")
+	flag.StringVar(&AppInfo.Version, "app.version", AppInfo.Version, "input this app version, ex: -app.version=1.0.0")
 	flag.Parse()
 
 	fmt.Println("Default configPath:", configPath)
