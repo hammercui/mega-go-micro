@@ -54,6 +54,11 @@ type AppConf struct {
 	KafkaHookAddrs []string `json:"kafkaHookAddrs"      toml:"kafkaHookAddrs"`
 }
 
+//app运行时的一些参数
+type AppRuntimeInfo struct {
+	Version string
+}
+
 //mysql配置
 type MysqlConf struct {
 	DbName   string `json:"dbName" toml:"dbName"`
@@ -95,8 +100,8 @@ type ConfigCenter struct {
 
 //kafka配置
 type KafkaConf struct {
-	Addrs  []string `json:"addrs"     toml:"addrs"`
-	Topic string `json:"topic" toml:"topic"`
+	Addrs []string `json:"addrs"     toml:"addrs"`
+	Topic string   `json:"topic" toml:"topic"`
 }
 
 type AppOpts struct {
@@ -111,6 +116,9 @@ type AppOpts struct {
 var configPath string
 var LogoutPath string
 var conf Config
+var AppInfo = &AppRuntimeInfo{
+	Version: "1.0.0",
+}
 
 //初始化配置信息
 func InitConfig() {
@@ -125,6 +133,7 @@ func InitConfig() {
 	//fmt.Println("默认配置文件路径", "defaultConfigPath")
 	flag.StringVar(&configPath, "configs", defaultConfigPath, "configs path")
 	flag.StringVar(&LogoutPath, "logout", defaultLogPath, "logout path")
+	flag.StringVar(&AppInfo.Version, "app.version", AppInfo.Version, "input this app version, ex: -app.version=1.0.0")
 	flag.Parse()
 
 	fmt.Println("配置文件地址", configPath)
@@ -169,20 +178,20 @@ func InitConfigWithOpts(opts *AppOpts) {
 	LoadConfFile("application.toml", &conf.AppConf)
 	//var consulConf ConsulConf
 	LoadConfFile("consul.toml", &conf.ConsulConf)
-	if opts.IsConfWatchOn{
+	if opts.IsConfWatchOn {
 		LoadConfFile("configCenter.toml", &conf.ConfigCenter)
 	}
 	//var kafkaConf KafkaConf
-	if opts.IsBrokerOn{
+	if opts.IsBrokerOn {
 		LoadConfFile("kafka.toml", &conf.KafkaConf)
 	}
-	if opts.IsMongoOn{
+	if opts.IsMongoOn {
 		LoadConfFile("mongo.toml", &conf.MongoConf)
 	}
-	if opts.IsSqlOn{
+	if opts.IsSqlOn {
 		LoadConfFile("mysql.toml", &conf.MysqlConf)
 	}
-	if opts.IsRedisOn{
+	if opts.IsRedisOn {
 		LoadConfFile("redis.toml", &conf.RedisConf)
 	}
 	//full app name
