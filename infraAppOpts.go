@@ -13,18 +13,11 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 )
 
-type AppOpts struct {
-	IsConfWatchOn  bool
-	IsBrokerOn     bool
-	IsRedisOn      bool
-	IsMongoOn      bool
-	IsSqlOn        bool
-	IsSkyWalkingOn bool
-}
 
-func InitAppWithOpts(opts *AppOpts) *InfraApp {
+
+func InitAppWithOpts(opts *conf.AppOpts) *InfraApp {
 	//1 配置初始化
-	conf.InitConfig()
+	conf.InitConfigWithOpts(opts)
 	//2 日志初始化
 	log.InitLog()
 	//3 自定义consul注册

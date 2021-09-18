@@ -60,7 +60,7 @@ func InitLog() {
 	})
 	logger.DefaultLogger = l
 	//打印配置
-	logrusSingle.Info("load consul配置信息:", conf.GetConf().ConsulConf)
+	logrusSingle.Info("Load consul config:", conf.GetConf().ConsulConf)
 }
 
 //获得日志实例

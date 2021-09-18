@@ -99,6 +99,15 @@ type KafkaConf struct {
 	Topic string `json:"topic" toml:"topic"`
 }
 
+type AppOpts struct {
+	IsConfWatchOn  bool
+	IsBrokerOn     bool
+	IsRedisOn      bool
+	IsMongoOn      bool
+	IsSqlOn        bool
+	IsSkyWalkingOn bool
+}
+
 var configPath string
 var LogoutPath string
 var conf Config
@@ -137,6 +146,50 @@ func InitConfig() {
 		conf.AppConf.Name,
 		conf.AppConf.Env)
 	fmt.Printf("load all configs success!\n")
+}
+
+func InitConfigWithOpts(opts *AppOpts) {
+	//读取flag 配置文件默认路径
+	defaultConfigPath, _ := os.Getwd()
+	defaultConfigPath = filepath.Dir(defaultConfigPath) + "/configs"
+
+	//读取flag 日志输出路径
+	defaultLogPath, _ := os.Getwd()
+	defaultLogPath = filepath.Dir(defaultLogPath) + "/logout"
+
+	//fmt.Println("默认配置文件路径", "defaultConfigPath")
+	flag.StringVar(&configPath, "configs", defaultConfigPath, "configs path")
+	flag.StringVar(&LogoutPath, "logout", defaultLogPath, "logout path")
+	flag.Parse()
+
+	fmt.Println("Default configPath:", configPath)
+	fmt.Println("Default LogoutPath", LogoutPath)
+
+	//var appConf AppConf
+	LoadConfFile("application.toml", &conf.AppConf)
+	//var consulConf ConsulConf
+	LoadConfFile("consul.toml", &conf.ConsulConf)
+	if opts.IsConfWatchOn{
+		LoadConfFile("configCenter.toml", &conf.ConfigCenter)
+	}
+	//var kafkaConf KafkaConf
+	if opts.IsBrokerOn{
+		LoadConfFile("kafka.toml", &conf.KafkaConf)
+	}
+	if opts.IsMongoOn{
+		LoadConfFile("mongo.toml", &conf.MongoConf)
+	}
+	if opts.IsSqlOn{
+		LoadConfFile("mysql.toml", &conf.MysqlConf)
+	}
+	if opts.IsRedisOn{
+		LoadConfFile("redis.toml", &conf.RedisConf)
+	}
+	//full app name
+	conf.AppConf.FullAppName = fmt.Sprintf("%s-%s-%s", conf.AppConf.Group,
+		conf.AppConf.Name,
+		conf.AppConf.Env)
+	fmt.Printf("Load all configs success!\n")
 }
 
 //加载配置文件
