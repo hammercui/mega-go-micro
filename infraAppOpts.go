@@ -1,9 +1,7 @@
 /**
 infraApp配置化生成
- */
+*/
 package infra
-
-
 
 import (
 	infraBroker "github.com/hammercui/mega-go-micro/broker"
@@ -30,10 +28,11 @@ func InitAppWithOpts(opts *conf.AppOpts) *InfraApp {
 	})
 	sel := selector.NewSelector(selector.Registry(reg))
 	app = &InfraApp{
-		Reg:      reg,
-		Selector: sel,
+		Reg:                reg,
+		Selector:           sel,
 		readOnlyDBPoolMap:  make(map[string]*mysql.DBPool),
 		readWriteDBPoolMap: make(map[string]*mysql.DBPool),
+		redisPoolMap:       make(map[string]*infraRedis.RedisPool),
 	}
 	appConf := conf.GetConf()
 	//4
@@ -41,8 +40,8 @@ func InitAppWithOpts(opts *conf.AppOpts) *InfraApp {
 		app.ReadOnlyDB = mysql.DefaultMysqlReadOnly()
 		app.ReadWriteDB = mysql.DefaultMysqlReadWrite()
 		//4.1 池化
-		app.SetReadOnlyDBPool(appConf.AppConf.Name,mysql.DefaultMysqlDsn(),app.ReadOnlyDB)
-		app.SetReadWriteDBPool(appConf.AppConf.Name,mysql.DefaultMysqlDsn(),app.ReadWriteDB)
+		app.SetReadOnlyDBPool(appConf.AppConf.Name, mysql.DefaultMysqlDsn(), app.ReadOnlyDB)
+		app.SetReadWriteDBPool(appConf.AppConf.Name, mysql.DefaultMysqlDsn(), app.ReadWriteDB)
 	}
 
 	//5 新建配置中心合并配置
@@ -53,7 +52,7 @@ func InitAppWithOpts(opts *conf.AppOpts) *InfraApp {
 	//6 redis client
 	if opts.IsRedisOn {
 		app.RedisClient = infraRedis.DefaultRedisClient()
-		app.SetRedisPool(appConf.AppConf.Name,appConf.RedisConf.Addr,appConf.RedisConf.DbIndex,app.RedisClient)
+		app.SetRedisPool(appConf.AppConf.Name, appConf.RedisConf.Addr, appConf.RedisConf.DbIndex, app.RedisClient)
 	}
 
 	//7 init broker
@@ -66,7 +65,7 @@ func InitAppWithOpts(opts *conf.AppOpts) *InfraApp {
 	}
 
 	//8 监听配置
-	if opts.IsConfWatchOn{
+	if opts.IsConfWatchOn {
 		regisConfWatch()
 	}
 
