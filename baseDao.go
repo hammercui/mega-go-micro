@@ -130,3 +130,11 @@ func (p *BaseDao) Insert(record interface{}) error {
 	}
 	return nil
 }
+
+func (p *BaseDao) GetReadDbByName(name string) *gorm.DB  {
+	return p.app.GetReadOnlyDB(name)
+}
+
+func (p *BaseDao) GetWriteDbByName(name string) *gorm.DB  {
+	return p.app.GetReadWriteDB(name)
+}

@@ -11,8 +11,8 @@ package infra
 import (
 	"encoding/json"
 	"github.com/go-redis/redis"
-	"reflect"
 	"github.com/hammercui/mega-go-micro/log"
+	"reflect"
 )
 
 type BaseService struct {
@@ -24,8 +24,8 @@ func NewBaseService(app *InfraApp) *BaseService {
 }
 
 type AtyAutoConf struct {
-	Desc string  `json:"desc"`
-	Val string  `json:"val"`
+	Desc string `json:"desc"`
+	Val  string `json:"val"`
 }
 
 //统一查询redis hash
@@ -59,7 +59,7 @@ func (p *BaseService) SetHashByKey(hashName string, key string, saveModal interf
 	str2 := saveModal
 	t1 := reflect.TypeOf(saveModal)
 	//入参不是string
-	if(t1.Kind() != reflect.String){
+	if t1.Kind() != reflect.String {
 		b, err := json.Marshal(saveModal)
 		if err != nil {
 			log.Logger().Errorf("redis hset:%s,key:%s,value:%v,encode json err:%+v", hashName, key, saveModal, err)
@@ -82,8 +82,8 @@ func (p *BaseService) DelHashByKey(hashName string, key string) error {
 	if err != nil {
 		log.Logger().Errorf("redis del hash:%s key:%s,err:%+v", hashName, key, err)
 		return err
-	}else{
-		log.Logger().Infof("redis del hash:%s key:%s,success!", hashName, key )
+	} else {
+		log.Logger().Infof("redis del hash:%s key:%s,success!", hashName, key)
 	}
 	return nil
 }
@@ -107,7 +107,7 @@ func (p *BaseService) GetByKey(key string, retModal interface{}) error {
 
 func (p *BaseService) GetStringByKey(key string) string {
 	redisValue, err := p.App.RedisClient.Get(key).Result()
-	if err != nil && err.Error() != redis.Nil.Error(){
+	if err != nil && err.Error() != redis.Nil.Error() {
 		log.Logger().Errorf("redis get key:%s,err:%+v", key, err)
 		return ""
 	}
@@ -119,7 +119,7 @@ func (p *BaseService) SetByKey(key string, saveModal interface{}) error {
 	str2 := saveModal
 	t1 := reflect.TypeOf(saveModal)
 	//入参不是string
-	if(t1.Kind() != reflect.String){
+	if t1.Kind() != reflect.String {
 		b, err := json.Marshal(saveModal)
 		if err != nil {
 			log.Logger().Errorf("redis set key:%s,value:%v,encode json err:%+v", key, saveModal, err)
@@ -186,4 +186,6 @@ func (p *BaseService) PushListL(key string, inModel interface{}) error {
 	return nil
 }
 
-
+func (p *BaseService) GetRedisClientByName(name string) *redis.Client {
+	return p.App.GetRedisClient(name)
+}
