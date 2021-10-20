@@ -16,9 +16,17 @@ import (
 	"os"
 )
 
-//初始化redis
-func initDirect() *redis.Client {
+func DefaultRedisClient() *redis.Client {
+	appConf := conf.GetConf().AppConf
 	redisConf := conf.GetConf().RedisConf
+	if appConf.Env == conf.AppEnv_local {
+		return NewRedisClientByDirect(redisConf)
+	}
+	return NewRedisClientBySentinel(redisConf)
+}
+
+//初始化redis
+func NewRedisClientByDirect(redisConf *conf.RedisConf) *redis.Client {
 	//connect redis
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisConf.Addr,
@@ -35,20 +43,13 @@ func initDirect() *redis.Client {
 	return redisClient
 }
 
-func NewRedisClient() *redis.Client {
-	appConf := conf.GetConf().AppConf
-	redisConf := conf.GetConf().RedisConf
-	if appConf.Env == conf.AppEnv_local {
-		return initDirect()
-	}
-
+func NewRedisClientBySentinel(redisConf *conf.RedisConf) *redis.Client {
 	//connect redis
 	redisClient := redis.NewFailoverClient(&redis.FailoverOptions{
 		MasterName:    "mymaster",
 		SentinelAddrs: redisConf.Sentinels,
 		DB:            redisConf.DbIndex,
 	})
-
 	pong, err := redisClient.Ping().Result()
 	if err != nil {
 		log.Logger().Error("redis sentinel connect fail!err:%v", err)

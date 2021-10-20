@@ -1,3 +1,0 @@
-[2021/09/16 18:13:01.857][INFO][log/log.go:63]load consul配置信息:&{[192.168.2.20:8500]}  name=mega-web-activity-local nodeId=1 topics="[werewolf-web-activity-local-log]"
-[2021/09/16 18:13:07.996][ERROR][mysql/gormLog.go:70]GormError failed to initialize database, got error %v[dial tcp 192.168.2.20:3306: connect: no route to host]  name=mega-web-activity-local nodeId=1 topics="[werewolf-web-activity-local-log]"
-[2021/09/16 18:13:07.997][ERROR][mysql/mysqlOrm.go:34]mysql readonly:mega:mega@(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local connect error!dial tcp 192.168.2.20:3306: connect: no route to host  name=mega-web-activity-local nodeId=1 topics="[werewolf-web-activity-local-log]"

@@ -13,12 +13,13 @@ package main
 
 import (
 	infra "github.com/hammercui/mega-go-micro"
+	conf "github.com/hammercui/mega-go-micro/conf"
 	"github.com/hammercui/mega-go-micro/demo/http"
 	"github.com/hammercui/mega-go-micro/demo/rpc"
 )
 
 func main() {
-	app := infra.InitAppWithOpts(&infra.AppOpts{
+	app := infra.InitAppWithOpts(&conf.AppOpts{
 		IsConfWatchOn:  true,
 		IsBrokerOn:     true,
 		IsRedisOn:      true,

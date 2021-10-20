@@ -13,17 +13,35 @@ import (
 
 //var readOnlyDB, readWriteDB *gorm.DB
 
-//初始化只读mysql
-func NewMysqlReadOnly() *gorm.DB {
+//新建默认只读mysql
+func DefaultMysqlReadOnly() *gorm.DB {
+	dbConn := NewMysqlConn(DefaultMysqlDsn())
+	//存入map
+	return dbConn
+}
+
+func DefaultMysqlReadWrite() *gorm.DB {
+	return NewMysqlConn(DefaultMysqlDsn())
+}
+
+func DefaultMysqlDsn() string  {
 	mysqlConf := conf.GetConf().MysqlConf
-	readAddr := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local",
+	return GenMysqlDsn(mysqlConf)
+}
+
+func GenMysqlDsn(mysqlConf *conf.MysqlConf) string {
+	addr := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local",
 		mysqlConf.Username,
 		mysqlConf.Password,
 		mysqlConf.ReadAddr,
 		mysqlConf.DbName,
 		mysqlConf.Charset,
 	)
-	db, err := gorm.Open(mysql.Open(readAddr), &gorm.Config{
+	return addr
+}
+
+func NewMysqlConn(addr string) *gorm.DB {
+	db, err := gorm.Open(mysql.Open(addr), &gorm.Config{
 		Logger: NewGormLog(conf.GetConf()),
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "",
@@ -31,41 +49,9 @@ func NewMysqlReadOnly() *gorm.DB {
 		},
 	})
 	if err != nil {
-		log.Logger().Errorf("mysql readonly:%s connect error!%v", readAddr, err)
+		log.Logger().Errorf("mysql :%s connect error!%s", addr, err)
 		os.Exit(0)
 	}
-	log.Logger().Infof("mysql readonly:%s connect success!", readAddr)
-	//readOnlyDB = db
-	//return readOnlyDB
+	log.Logger().Infof("mysql :%s connect success!", addr)
 	return db
 }
-
-func NewMysqlReadWrite() *gorm.DB {
-	mysqlConf := conf.GetConf().MysqlConf
-	readwriteAddr := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local",
-		mysqlConf.Username,
-		mysqlConf.Password,
-		mysqlConf.Addr,
-		mysqlConf.DbName,
-		mysqlConf.Charset,
-	)
-	db, err := gorm.Open(mysql.Open(readwriteAddr), &gorm.Config{
-		Logger: NewGormLog(conf.GetConf()),
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "",
-			SingularTable: true,
-		},
-	})
-	if err != nil {
-		log.Logger().Errorf("mysql readwrite:%s connect err!%v", readwriteAddr, err)
-		os.Exit(0)
-	}
-	log.Logger().Infof("mysql readwrite:%s connect success!", readwriteAddr)
-	//readWriteDB = db
-	//return readWriteDB
-	return db
-}
-
-//func UnitMysql() {
-//
-//}

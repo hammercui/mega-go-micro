@@ -9,21 +9,15 @@
 package infra
 
 import (
-	"fmt"
 	"github.com/go-redis/redis"
 	"github.com/hammercui/go2sky"
-	infraBroker "github.com/hammercui/mega-go-micro/broker"
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/log"
 	"github.com/hammercui/mega-go-micro/mysql"
-	infraRedis "github.com/hammercui/mega-go-micro/redis"
-	"github.com/hammercui/mega-go-micro/registry/consul"
-	skyWalking2 "github.com/hammercui/mega-go-micro/tracer/skyWalking"
 	"github.com/hammercui/mega-go-micro/watch"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"
 	"gorm.io/gorm"
+	infraRedis "github.com/hammercui/mega-go-micro/redis"
 )
 
 type InfraApp struct {
@@ -40,118 +34,54 @@ type InfraApp struct {
 	//todo mongo连接
 	//链路追踪
 	SkyWalking *go2sky.Tracer
+	//redis客户端map
+	redisPoolMap map[string]*infraRedis.RedisPool
+	//mysql只读连接池
+	readOnlyDBPoolMap  map[string]*mysql.DBPool
+	//mysql读写连接池
+	readWriteDBPoolMap map[string]*mysql.DBPool
 }
+//instance
+var app *InfraApp
 
-var app InfraApp
-
-//初始化app
-func InitApp() *InfraApp {
-	//1 配置初始化
-	conf.InitConfig()
-	//2 日志初始化
-	log.InitLog()
-	//3 自定义consul注册
-	consulConf := conf.GetConf().ConsulConf
-	reg := consul.NewRegistry(func(op *registry.Options) {
-		op.Addrs = consulConf.Addrs
-	})
-	sel := selector.NewSelector(selector.Registry(reg))
-
-	//4 新建配置中心合并配置
-	confWatch := watch.NewConfWatch()
-	//5 redis client
-	redisClient := infraRedis.NewRedisClient()
-	//6 init broker
-	brokerIns := infraBroker.NewKafkaBroker()
-
-	skyWalking := skyWalking2.NewSkyTracer()
-
-	//7 初始化
-	app = InfraApp{
-		ReadOnlyDB:  mysql.NewMysqlReadOnly(),
-		ReadWriteDB: mysql.NewMysqlReadWrite(),
-		Reg:         reg,
-		Selector:    sel,
-		RedisClient: redisClient,
-		Broker:      brokerIns,
-		ConfWatch:   confWatch,
-		SkyWalking:  skyWalking,
+//指定名称的db链接入池
+func (p *InfraApp) SetReadOnlyDBPool(key string,addr string,dbConn *gorm.DB)  {
+	if pool,ok := p.readOnlyDBPoolMap[key];ok{
+		pool.PushDB(dbConn)
+	}else{
+		readDBPool := mysql.NewDBPoll(addr,dbConn)
+		p.readOnlyDBPoolMap[key] = readDBPool
 	}
-	//8 监听配置
-	regisConfWatch()
-
-	return &app
 }
 
-func regisConfWatch() {
-	//mysql
-	app.ConfWatch.Watch("mysql", &map[string]string{}, func(outConf interface{}, err error) {
-		if err != nil {
-			return
-		}
-		log.Logger().Info("trigger mysql config change: ", outConf)
-		//mysql重连
-		mysqlMap := outConf.(*map[string]string)
-		conf.GetConf().MysqlConf.Addr = fmt.Sprintf("%s:%s", (*mysqlMap)["host"], (*mysqlMap)["port"])
-		app.ReadWriteDB = mysql.NewMysqlReadWrite()
-		log.Logger().Info("trigger mysql reconnect success!")
-	})
+func (p *InfraApp) GetReadOnlyDB(key string) *gorm.DB  {
+	return p.readOnlyDBPoolMap[key].GetDB()
+}
 
-	//readMysql
-	app.ConfWatch.Watch("readMysql", &map[string]string{}, func(outConf interface{}, err error) {
-		if err != nil {
-			return
-		}
-		log.Logger().Info("trigger readMysql config change: ", outConf)
-		//mysql重连
-		readMysqlMap := outConf.(*map[string]string)
-		conf.GetConf().MysqlConf.ReadAddr = fmt.Sprintf("%s:%s", (*readMysqlMap)["host"], (*readMysqlMap)["port"])
-		app.ReadOnlyDB = mysql.NewMysqlReadOnly()
-		log.Logger().Info("trigger readMysql reconnect success!")
-	})
+func (p *InfraApp) SetReadWriteDBPool(key string,addr string,dbConn *gorm.DB)  {
+	if pool,ok := p.readWriteDBPoolMap[key];ok{
+		pool.PushDB(dbConn)
+	}else{
+		readDBPool := mysql.NewDBPoll(addr,dbConn)
+		p.readWriteDBPoolMap[key] = readDBPool
+	}
+}
 
-	//redis
-	app.ConfWatch.Watch("redis", &[]map[string]interface{}{}, func(outConf interface{}, err error) {
-		if err != nil {
-			return
-		}
-		log.Logger().Info("trigger redis config change: ", outConf)
-		var redisMap = outConf.(*[]map[string]interface{})
-		var redisAddrs []string
-		for _, item := range *redisMap {
-			redisAdds := fmt.Sprintf("%s:%v", item["host"], item["port"])
-			redisAddrs = append(redisAddrs, redisAdds)
-		}
-		conf.GetConf().RedisConf.Sentinels = redisAddrs
-		app.RedisClient.Close()
-		app.RedisClient = infraRedis.NewRedisClient()
-		log.Logger().Info("trigger redis reconnect success!")
-	})
+func (p *InfraApp) GetReadWriteDB(key string) *gorm.DB  {
+	return p.readWriteDBPoolMap[key].GetDB()
+}
 
-	// kafka
-	app.ConfWatch.Watch("kafka", &[]map[string]interface{}{}, func(outConf interface{}, err error) {
-		if err != nil {
-			return
-		}
-		log.Logger().Info("trigger kafka config change: ", outConf)
-		var kafkaMap = outConf.(*[]map[string]interface{})
-		var kafkaAddrs []string
-		for _, item := range *kafkaMap {
-			redisAdds := fmt.Sprintf("%s:%v", item["host"], item["port"])
-			kafkaAddrs = append(kafkaAddrs, redisAdds)
-		}
-		conf.GetConf().KafkaConf.Addrs = kafkaAddrs
-		app.Broker.Disconnect()
-		app.Broker = infraBroker.NewKafkaBroker()
-		log.Logger().Info("trigger kafka reconnect success!")
-	})
+func (p *InfraApp) SetRedisPool(key string,addr string,dbIndex int,client *redis.Client)  {
+	if pool,ok := p.redisPoolMap[key];ok{
+		pool.PushClient(client)
+	}else{
+		redisPool := infraRedis.NewRedisPool(key,addr,dbIndex,client)
+		p.redisPoolMap[key] = redisPool
+	}
+}
 
-	//todo mongo
-	//app.ConfWatch.Watch("redis", &[]map[string]interface{}{}, func(outConf interface{}, err error) {
-	//	if err != nil {
-	//		return
-	//	}
-	//})
+func (p *InfraApp) GetRedisClient(key string) *redis.Client  {
+	return p.redisPoolMap[key].GetClient()
 }
 
 //卸载app
