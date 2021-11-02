@@ -111,6 +111,7 @@ type AppOpts struct {
 	IsMongoOn      bool
 	IsSqlOn        bool
 	IsSkyWalkingOn bool
+	IsKafkaLogsOn bool
 }
 
 var configPath string

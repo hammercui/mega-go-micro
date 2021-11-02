@@ -19,7 +19,7 @@ import (
 
 var logrusSingle *logrus.Entry
 
-func InitLog() {
+func InitLog(opts *conf.AppOpts) {
 	//配置文件
 	appConfig := conf.GetConf().AppConf
 	nodeId := appConfig.NodeId
@@ -46,7 +46,9 @@ func InitLog() {
 	logrusIns.SetLevel(logrus.DebugLevel) //日志级别
 	logrusIns.AddHook(NewLineHook())
 	if appConfig.Env != conf.AppEnv_local {
-		logrusIns.AddHook(getKafkaHook())
+		if opts != nil && opts.IsKafkaLogsOn{
+			logrusIns.AddHook(getKafkaHook())
+		}
 	}
 	logrusIns.AddHook(getWriteAllFileHook())   //全部日志
 	logrusIns.AddHook(getWriteErrorFileHook()) //错误日志

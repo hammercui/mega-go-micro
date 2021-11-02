@@ -20,7 +20,7 @@ func InitAppWithOpts(opts *conf.AppOpts) *InfraApp {
 	//1 配置初始化
 	conf.InitConfigWithOpts(opts)
 	//2 日志初始化
-	log.InitLog()
+	log.InitLog(opts)
 	//3 自定义consul注册
 	consulConf := conf.GetConf().ConsulConf
 	reg := consul.NewRegistry(func(op *registry.Options) {
