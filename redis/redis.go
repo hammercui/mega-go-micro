@@ -30,7 +30,7 @@ func NewRedisClientByDirect(redisConf *conf.RedisConf) *redis.Client {
 	//connect redis
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisConf.Addr,
-		Password: "",                // no password set
+		Password: redisConf.Password,                // no password set
 		DB:       redisConf.DbIndex, // use default DB
 	})
 	pong, err := redisClient.Ping().Result()
@@ -49,6 +49,7 @@ func NewRedisClientBySentinel(redisConf *conf.RedisConf) *redis.Client {
 		MasterName:    "mymaster",
 		SentinelAddrs: redisConf.Sentinels,
 		DB:            redisConf.DbIndex,
+		Password: redisConf.Password,
 	})
 	pong, err := redisClient.Ping().Result()
 	if err != nil {
