@@ -55,8 +55,8 @@ func InitApp() *InfraApp {
 	}
 	//8 池化
 	appConf := conf.GetConf()
-	app.SetReadOnlyDBPool(appConf.AppConf.Name, mysql.DefaultMysqlDsn(), app.ReadOnlyDB)
-	app.SetReadWriteDBPool(appConf.AppConf.Name, mysql.DefaultMysqlDsn(), app.ReadWriteDB)
+	app.SetReadOnlyDBPool(appConf.AppConf.Name, mysql.DefaultMysqlReadOnlyDsn(), app.ReadOnlyDB)
+	app.SetReadWriteDBPool(appConf.AppConf.Name, mysql.DefaultMysqlReadWriteDsn(), app.ReadWriteDB)
 	app.SetRedisPool(appConf.AppConf.Name,appConf.RedisConf.Addr,appConf.RedisConf.DbIndex,app.RedisClient)
 	//9 监听配置
 	regisConfWatch()

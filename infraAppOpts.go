@@ -40,8 +40,8 @@ func InitAppWithOpts(opts *conf.AppOpts) *InfraApp {
 		app.ReadOnlyDB = mysql.DefaultMysqlReadOnly()
 		app.ReadWriteDB = mysql.DefaultMysqlReadWrite()
 		//4.1 池化
-		app.SetReadOnlyDBPool(appConf.AppConf.Name, mysql.DefaultMysqlDsn(), app.ReadOnlyDB)
-		app.SetReadWriteDBPool(appConf.AppConf.Name, mysql.DefaultMysqlDsn(), app.ReadWriteDB)
+		app.SetReadOnlyDBPool(appConf.AppConf.Name, mysql.DefaultMysqlReadOnlyDsn(), app.ReadOnlyDB)
+		app.SetReadWriteDBPool(appConf.AppConf.Name, mysql.DefaultMysqlReadWriteDsn(), app.ReadWriteDB)
 	}
 
 	//5 新建配置中心合并配置

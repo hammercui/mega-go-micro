@@ -15,29 +15,39 @@ import (
 
 //新建默认只读mysql
 func DefaultMysqlReadOnly() *gorm.DB {
-	dbConn := NewMysqlConn(DefaultMysqlDsn())
+	dbConn := NewMysqlConn(DefaultMysqlReadOnlyDsn())
 	//存入map
 	return dbConn
 }
 
+//新建默认可读可写mysql
 func DefaultMysqlReadWrite() *gorm.DB {
-	return NewMysqlConn(DefaultMysqlDsn())
+	return NewMysqlConn(DefaultMysqlReadWriteDsn())
 }
 
-func DefaultMysqlDsn() string  {
+func DefaultMysqlReadOnlyDsn() string  {
 	mysqlConf := conf.GetConf().MysqlConf
-	return GenMysqlDsn(mysqlConf)
+	return GenMysqlDsn(mysqlConf,true)
 }
 
-func GenMysqlDsn(mysqlConf *conf.MysqlConf) string {
-	addr := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local",
+func DefaultMysqlReadWriteDsn() string  {
+	mysqlConf := conf.GetConf().MysqlConf
+	return GenMysqlDsn(mysqlConf,false)
+}
+
+func GenMysqlDsn(mysqlConf *conf.MysqlConf,isReadOnly bool) string {
+	addr := mysqlConf.Addr
+	if isReadOnly{
+		addr = mysqlConf.ReadAddr
+	}
+	dsn := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local",
 		mysqlConf.Username,
 		mysqlConf.Password,
-		mysqlConf.ReadAddr,
+		addr,
 		mysqlConf.DbName,
 		mysqlConf.Charset,
 	)
-	return addr
+	return dsn
 }
 
 func NewMysqlConn(addr string) *gorm.DB {
