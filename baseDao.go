@@ -98,6 +98,7 @@ func (p *BaseDao) SelectAll(outs interface{}, sqlStr string, values ...interface
 	defer rows.Close()
 	if err != nil {
 		log.Logger().Error("SelectAll sql err:", err, " | sqlStr: ", sqlStr)
+		return err
 	}
 
 	for rows.Next() {
@@ -127,6 +128,7 @@ func (p *BaseDao) Insert(record interface{}) error {
 	result := p.app.ReadWriteDB.Create(record)
 	if result.Error != nil {
 		log.Logger().Errorf("insert record:%+v,error:%+v", record, result.Error)
+		return result.Error
 	}
 	return nil
 }
