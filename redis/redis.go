@@ -27,12 +27,15 @@ func DefaultRedisClient() *redis.Client {
 
 //初始化redis
 func NewRedisClientByDirect(redisConf *conf.RedisConf) *redis.Client {
-	//connect redis
-	redisClient := redis.NewClient(&redis.Options{
+	opts := &redis.Options{
 		Addr:     redisConf.Addr,
-		Password: redisConf.Password,                // no password set
 		DB:       redisConf.DbIndex, // use default DB
-	})
+	}
+	if redisConf.Password != "" && len(redisConf.Password) > 1{
+		opts.Password = redisConf.Password
+	}
+	//connect redis
+	redisClient := redis.NewClient(opts)
 	pong, err := redisClient.Ping().Result()
 	if err != nil {
 		log.Logger().Infof("redis direct connect:%s fail,err:%v", redisConf.Addr, err)
@@ -45,12 +48,15 @@ func NewRedisClientByDirect(redisConf *conf.RedisConf) *redis.Client {
 
 func NewRedisClientBySentinel(redisConf *conf.RedisConf) *redis.Client {
 	//connect redis
-	redisClient := redis.NewFailoverClient(&redis.FailoverOptions{
+	flOpts := &redis.FailoverOptions{
 		MasterName:    "mymaster",
 		SentinelAddrs: redisConf.Sentinels,
 		DB:            redisConf.DbIndex,
-		Password: redisConf.Password,
-	})
+	}
+	if redisConf.Password != "" && len(redisConf.Password) > 1{
+		flOpts.Password = redisConf.Password
+	}
+	redisClient := redis.NewFailoverClient(flOpts)
 	pong, err := redisClient.Ping().Result()
 	if err != nil {
 		log.Logger().Error("redis sentinel connect fail!err:%v", err)
