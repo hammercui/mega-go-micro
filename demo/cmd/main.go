@@ -20,12 +20,12 @@ import (
 
 func main() {
 	app := infra.InitAppWithOpts(&conf.AppOpts{
-		IsConfWatchOn:  true,
-		IsBrokerOn:     true,
+		IsConfWatchOn:  false,
+		IsBrokerOn:     false,
 		IsRedisOn:      true,
-		IsMongoOn:      true,
-		IsSqlOn:        true,
-		IsSkyWalkingOn: true,
+		IsMongoOn:      false,
+		IsSqlOn:        false,
+		IsSkyWalkingOn: false,
 	})
 	// 启动http服务
 	go http.Start(app)

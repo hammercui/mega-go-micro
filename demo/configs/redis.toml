@@ -1,4 +1,4 @@
-addr = "192.168.2.20:6379"
+addr = "127.0.0.1:6379"
 password = ""
 dbIndex = 8   #redis只需要数据库序号
 sentinels = [

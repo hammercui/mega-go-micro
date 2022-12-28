@@ -1,5 +1,5 @@
 /*
-@Desc : 基础服务app对象
+@Desc : 基础设施app对象
 @Version : 1.0.0
 @Time : 2020/8/22 16:02
 @Author : hammercui

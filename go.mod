@@ -41,6 +41,7 @@ require (
 	google.golang.org/genproto v0.0.0-20200815001618-f69a88009b70
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/yaml.v2 v2.3.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.0.1
 	gorm.io/gorm v1.20.0
 	honnef.co/go/tools v0.0.1-2020.1.5 // indirect
