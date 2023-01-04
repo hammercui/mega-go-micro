@@ -8,13 +8,14 @@ app:
   httpPort: 8858
   rpcPort: 52888
   webSocketPort: 9949
-  kafkaHookAddrs:
-    - 192.168.2.20:9092
   custom:
     sendDing: ""
     sentryDsn: ""
     kafkaHookTopic: ""
     phpMainUrl: ""
+log:
+  kafkaHookAddrs:
+    - 192.168.2.20:9092
 configCenter:
   consulAddrs:
     - 192.168.2.20:8500
@@ -35,11 +36,7 @@ mongo:
     password: ""
 mysql:
   master:
-    dbName: mega
-    addr: 192.168.2.20:3306
-    username: mega
-    password: mega"
-    charset: utf8mb4
+    dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
     warnThreshold: 50
   slave:
     dbName: mega
