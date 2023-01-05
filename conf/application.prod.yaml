@@ -18,36 +18,49 @@ log:
     - 192.168.2.20:9092
   logoutPath: ""
 configCenter:
+  enable: true
   consulAddrs:
     - 192.168.2.20:8500
   confKey: werewolf_conf
 consul:
+  enable: true
   addrs:
     - 192.168.2.20:8500
   confKey: werewolf_conf
 kafka:
+  enable: true
   addrs:
     - 192.168.2.20:9092
   topic: ""
 mongo:
   default:
+    enable: true
     addr: mongodb://192.168.2.20:27017
     dbName: test
     username: admin
     password: ""
 mysql:
-  master:
-    dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
-    warnThreshold: 50
-  slave:
-    dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
-    warnThreshold: 50
+  db0:
+    enable: true
+    master:
+      dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
+      warnThreshold: 50
+    slave:
+      dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
+      warnThreshold: 50
+  db1:
+    enable: true
+    master:
+      dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
+      warnThreshold: 50
 redis:
   db0:
+    enable: true
     addr: 192.168.2.20:6379
     password: ""
     database: 0
   db1:
+    enable: true
     sentinel:
       master: mymaster
       nodes:

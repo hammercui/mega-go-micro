@@ -18,7 +18,7 @@ import (
 
 func InitAppWithOpts(opts *conf.AppOpts) *InfraApp {
 	//1 配置初始化
-	conf.InitConfigWithOpts(opts)
+	conf.InitConfig()
 	//2 日志初始化
 	log.InitLog(opts)
 	//3 自定义consul注册

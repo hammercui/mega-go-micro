@@ -33,14 +33,14 @@ type AppRuntimeInfo struct {
 }
 
 type Config struct {
-	App          *AppConf              `json:"app"         yaml:"app"`
-	Log          *LogConf              `json:"log"         yaml:"log"`
-	ConfigCenter *ConfigCenter         `json:"configCenter"         yaml:"configCenter"`
-	Consul       *ConsulConf           `json:"consul"         yaml:"consul"`
-	Kafka        *KafkaConf            `json:"kafka"         yaml:"kafka"`
-	MongoMap     map[string]*MysqlConf `json:"mongo"         yaml:"mongo"`
-	MysqlMap     map[string]*MysqlConf `json:"mysql"         yaml:"mysql"`
-	RedisMap     map[string]*RedisConf `json:"redis"         yaml:"redis"`
+	App          *AppConf                       `json:"app"         yaml:"app"`
+	Log          *LogConf                       `json:"log"         yaml:"log"`
+	ConfigCenter *ConfigCenter                  `json:"configCenter"         yaml:"configCenter"`
+	Consul       *ConsulConf                    `json:"consul"         yaml:"consul"`
+	Kafka        *KafkaConf                     `json:"kafka"         yaml:"kafka"`
+	MongoMap     map[string]*MongoConf          `json:"mongo"         yaml:"mongo"`
+	MysqlMap     map[string]*MysqlReadWriteConf `json:"mysql"         yaml:"mysql"`
+	RedisMap     map[string]*RedisConf          `json:"redis"         yaml:"redis"`
 }
 
 //应用配置
@@ -68,18 +68,21 @@ type LogConf struct {
 type ConfigCenter struct {
 	ConsulAddrs []string `json:"consulAddrs" yaml:"consulAddrs"`
 	ConfKey     string   `json:"confKey" yaml:"confKey"`
+	Enable      bool     `json:"enable" yaml:"enable" `
 }
 
 //consul配置
 type ConsulConf struct {
 	Addrs   []string `json:"addrs" yaml:"addrs"`
 	ConfKey string   `json:"confKey" yaml:"confKey"`
+	Enable  bool     `json:"enable" yaml:"enable" `
 }
 
 //kafka配置
 type KafkaConf struct {
-	Addrs []string `json:"addrs"     yaml:"addrs"`
-	Topic string   `json:"topic" yaml:"topic"`
+	Addrs  []string `json:"addrs"     yaml:"addrs"`
+	Topic  string   `json:"topic" yaml:"topic"`
+	Enable bool     `json:"enable" yaml:"enable" `
 }
 
 //mongo配置
@@ -88,13 +91,21 @@ type MongoConf struct {
 	DbName   string `json:"dbName"   yaml:"dbName"`
 	Username string `json:"username" yaml:"username"`
 	Password string `json:"password" yaml:"password"`
+	Enable   bool   `json:"enable" yaml:"enable" `
 }
 
 //mysql配置
+type MysqlReadWriteConf struct {
+	Master *MysqlConf `json:"master"     yaml:"master"`
+	Slave  *MysqlConf `json:"slave"     yaml:"slave"`
+	Enable bool       `json:"enable" yaml:"enable" `
+}
+
 type MysqlConf struct {
 	DSN string `json:"dsn" yaml:"dsn"`
 	//sql执行警告阈值，毫秒
-	WarnThreshold int `json:"warnThreshold" yaml:"warnThreshold"`
+	WarnThreshold int  `json:"warnThreshold" yaml:"warnThreshold"`
+	Enable        bool `json:"enable" yaml:"enable" `
 }
 
 //redis配置
@@ -103,6 +114,7 @@ type RedisConf struct {
 	Password string             `json:"password"  yaml:"password"`
 	DbIndex  int                `json:"dbIndex"   yaml:"dbIndex"`
 	Sentinel *RedisSentinelConf `json:"sentinel" yaml:"sentinel"` //redis sentinel列表
+	Enable   bool               `json:"enable" yaml:"enable" `
 }
 
 type RedisSentinelConf struct {
@@ -131,9 +143,10 @@ func parseFlag() {
 	defaultPath, _ := os.Getwd()
 	flag.StringVar(&flagConf.configs, "configs", defaultPath, "configs path")
 	flag.StringVar(&flagConf.logout, "logout", defaultPath, "logout path")
-	flag.StringVar(&flagConf.version, "version", "1.0.0", "input this app version, ex: -app.version=1.0.0")
+	flag.StringVar(&flagConf.version, "version", "1.0.0", "input this app version, eg: -app.version=1.0.0")
 	flag.StringVar(&flagConf.env, "env", "prod", "input app runtime environment,eg:dev,beta,prod")
 	flag.StringVar(&flagConf.nodeId, "nodeId", "1", "input app node id, must be unique")
+	flag.StringVar(&flagConf.nodeId, "ip", "0.0.0.0", "input app ip, for server discovery")
 	flag.Parse()
 
 	fmt.Println("-------config console-------")
@@ -179,6 +192,7 @@ func InitConfig() {
 	conf.App.Env = AppEnv(flagConf.env)
 	conf.App.NodeId = flagConf.nodeId
 	conf.Log.LogoutPath = flagConf.logout
+	conf.App.IP = flagConf.ip
 	fmt.Printf("--: load all configs success!\n")
 }
 

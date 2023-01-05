@@ -6,4 +6,5 @@ type FlagConf struct {
 	version string
 	env     string
 	nodeId  string
+	ip 		string
 }
