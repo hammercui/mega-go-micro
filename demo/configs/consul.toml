@@ -1,4 +1,0 @@
-addrs = [
-    "192.168.2.20:8500",
-]
-confKey = "werewolf_conf"

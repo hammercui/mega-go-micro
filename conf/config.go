@@ -9,14 +9,12 @@
 package conf
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
 	"os"
-	"path"
-	"path/filepath"
-	"time"
+	"reflect"
 )
 
 type AppEnv string
@@ -24,6 +22,7 @@ type AppEnv string
 const (
 	AppEnv_local AppEnv = "local"
 	AppEnv_coder AppEnv = "coder"
+	AppEnv_dev   AppEnv = "dev"
 	AppEnv_beta  AppEnv = "beta"
 	AppEnv_prod  AppEnv = "prod"
 )
@@ -34,35 +33,35 @@ type AppRuntimeInfo struct {
 }
 
 type Config struct {
-	App          *AppConf
-	Log          *LogConf
-	ConfigCenter *ConfigCenter
-	Consul       *ConsulConf
-	Kafka        *KafkaConf
-	RedisMap     *RedisConf
-	MongoMap     map[string]*MysqlConf
-	MysqlMap     map[string]*MysqlConf
+	App          *AppConf              `json:"app"         yaml:"app"`
+	Log          *LogConf              `json:"log"         yaml:"log"`
+	ConfigCenter *ConfigCenter         `json:"configCenter"         yaml:"configCenter"`
+	Consul       *ConsulConf           `json:"consul"         yaml:"consul"`
+	Kafka        *KafkaConf            `json:"kafka"         yaml:"kafka"`
+	MongoMap     map[string]*MysqlConf `json:"mongo"         yaml:"mongo"`
+	MysqlMap     map[string]*MysqlConf `json:"mysql"         yaml:"mysql"`
+	RedisMap     map[string]*RedisConf `json:"redis"         yaml:"redis"`
 }
 
 //应用配置
 type AppConf struct {
-	Group         string `json:"group"         yaml:"group"`
-	Name          string `json:"name"         yaml:"name"`
-	Region        string `json:"region"         yaml:"region"`
-	IP            string `json:"ip"         yaml:"ip"`
-	NodeId        string `json:"nodeId"         yaml:"nodeId"`
-	Env           AppEnv `json:"env"         yaml:"env"`
-	FullAppName   string
+	Group         string            `json:"group"         yaml:"group"`
+	Name          string            `json:"name"         yaml:"name"`
+	Region        string            `json:"region"         yaml:"region"`
+	IP            string            `json:"ip"         yaml:"ip"`
+	NodeId        string            `json:"nodeId"         yaml:"nodeId"`
+	Env           AppEnv            `json:"env"         yaml:"env"`
+	FullAppName   string            `json:"fullAppName" `
 	HttpPort      int               `json:"httpPort"      yaml:"httpPort"`
 	RpcPort       int               `json:"rpcPort"      yaml:"rpcPort"`
-	WebSocketPort int               `json:"WebSocketPort"      yaml:"WebSocketPort"`
+	WebSocketPort int               `json:"webSocketPort"      yaml:"webSocketPort"`
 	Custom        map[string]string `json:"custom"         yaml:"custom"`
 }
 
 //日志配置
 type LogConf struct {
 	KafkaHookAddrs []string `json:"kafkaHookAddrs"      yaml:"kafkaHookAddrs"`
-	LogoutPath string `json:"logoutPath" yaml:"logoutPath"`
+	LogoutPath     string   `json:"logoutPath" yaml:"logoutPath"`
 }
 
 //配置中心
@@ -95,20 +94,20 @@ type MongoConf struct {
 type MysqlConf struct {
 	DSN string `json:"dsn" yaml:"dsn"`
 	//sql执行警告阈值，毫秒
-	WarnThreshold time.Duration `json:"warnThreshold" yaml:"warnThreshold"`
+	WarnThreshold int `json:"warnThreshold" yaml:"warnThreshold"`
 }
 
 //redis配置
 type RedisConf struct {
-	Addr      string   `json:"addr"      yaml:"addr"`
-	Password  string   `json:"password"  yaml:"password"`
-	DbIndex   int      `json:"dbIndex"   yaml:"dbIndex"`
-	Sentinels []RedisSentinelConf `json:"sentinel" yaml:"sentinel"` //redis sentinel列表
+	Addr     string             `json:"addr"      yaml:"addr"`
+	Password string             `json:"password"  yaml:"password"`
+	DbIndex  int                `json:"dbIndex"   yaml:"dbIndex"`
+	Sentinel *RedisSentinelConf `json:"sentinel" yaml:"sentinel"` //redis sentinel列表
 }
 
 type RedisSentinelConf struct {
-	Master string `json:"master" yaml:"master"`
-	Nodes []string `json:"nodes" yaml:"nodes"`
+	Master string   `json:"master" yaml:"master"`
+	Nodes  []string `json:"nodes" yaml:"nodes"`
 }
 
 type AppOpts struct {
@@ -123,105 +122,81 @@ type AppOpts struct {
 
 //var configPath string
 //var LogoutPath string
-var conf Config
+var conf *Config
 
 var flagConf FlagConf
 
-func parseFlag()  {
+func parseFlag() {
 	//读取flag 配置文件默认路径
-	defaultConfigPath, _ := os.Getwd()
-	defaultConfigPath = filepath.Dir(defaultConfigPath) + "/configs"
-	//读取flag 日志输出路径
-	defaultLogPath, _ := os.Getwd()
-	defaultLogPath = filepath.Dir(defaultLogPath) + "/logout"
-	flag.StringVar(&flagConf.configs, "configs", defaultConfigPath, "configs path")
-	flag.StringVar(&flagConf.logout, "logout", defaultLogPath, "logout path")
-	flag.StringVar(&flagConf.version, "app.version", "1.0.0", "input this app version, ex: -app.version=1.0.0")
+	defaultPath, _ := os.Getwd()
+	flag.StringVar(&flagConf.configs, "configs", defaultPath, "configs path")
+	flag.StringVar(&flagConf.logout, "logout", defaultPath, "logout path")
+	flag.StringVar(&flagConf.version, "version", "1.0.0", "input this app version, ex: -app.version=1.0.0")
 	flag.StringVar(&flagConf.env, "env", "prod", "input app runtime environment,eg:dev,beta,prod")
+	flag.StringVar(&flagConf.nodeId, "nodeId", "1", "input app node id, must be unique")
 	flag.Parse()
-	fmt.Print("-------console-------")
-	fmt.Println("config path", flagConf.configs)
-	fmt.Println("logout path", flagConf.logout)
+
+	fmt.Println("-------config console-------")
+	fmt.Println("--: config path", flagConf.configs)
+	fmt.Println("--: logout path", flagConf.logout)
 }
 
 //初始化配置信息
 func InitConfig() {
 	parseFlag()
-	//var appConf AppConf
-	LoadConfFile("application.yaml", &conf.AppConf)
-	//var consulConf ConsulConf
-	LoadConfFile("consul.yaml", &conf.ConsulConf)
-	LoadConfFile("configCenter.yaml", &conf.ConfigCenter)
-	//var kafkaConf KafkaConf
-	LoadConfFile("kafka.yaml", &conf.KafkaConf)
-	LoadConfFile("mongo.yaml", &conf.MongoConf)
-	LoadConfFile("mysql.yaml", &conf.MysqlConf)
-	LoadConfFile("redis.yaml", &conf.RedisConf)
-
-	//full app name
-	conf.AppConf.FullAppName = fmt.Sprintf("%s-%s-%s", conf.AppConf.Group,
-		conf.AppConf.Name,
-		conf.AppConf.Env)
-	fmt.Printf("load all configs success!\n")
-}
-
-func InitConfigWithOpts(opts *AppOpts) {
-	//读取flag 配置文件默认路径
-	defaultConfigPath, _ := os.Getwd()
-	defaultConfigPath = filepath.Dir(defaultConfigPath) + "/configs"
-
-	//读取flag 日志输出路径
-	defaultLogPath, _ := os.Getwd()
-	defaultLogPath = filepath.Dir(defaultLogPath) + "/logout"
-
-	//fmt.Println("默认配置文件路径", "defaultConfigPath")
-	flag.StringVar(&configPath, "configs", defaultConfigPath, "configs path")
-	flag.StringVar(&LogoutPath, "logout", defaultLogPath, "logout path")
-	flag.StringVar(&AppInfo.Version, "app.version", AppInfo.Version, "input this app version, ex: -app.version=1.0.0")
-	flag.Parse()
-
-	fmt.Println("Default configPath:", configPath)
-	fmt.Println("Default LogoutPath", LogoutPath)
-
-	//var appConf AppConf
-	LoadConfFile("application.yaml", &conf.AppConf)
-	//var consulConf ConsulConf
-	LoadConfFile("consul.yaml", &conf.ConsulConf)
-	if opts.IsConfWatchOn {
-		LoadConfFile("configCenter.yaml", &conf.ConfigCenter)
+	//load default yaml
+	if defaultConf, err := loadConfFile("application.yaml"); err != nil {
+		panic(err)
+	} else {
+		conf = defaultConf
 	}
-	//var kafkaConf KafkaConf
-	if opts.IsBrokerOn {
-		LoadConfFile("kafka.yaml", &conf.KafkaConf)
-	}
-	if opts.IsMongoOn {
-		LoadConfFile("mongo.yaml", &conf.MongoConf)
-	}
-	if opts.IsSqlOn {
-		LoadConfFile("mysql.yaml", &conf.MysqlConf)
-	}
-	if opts.IsRedisOn {
-		LoadConfFile("redis.yaml", &conf.RedisConf)
+	// load env yaml
+	if envConf, err := loadConfFile(fmt.Sprintf("application.%s.yaml", flagConf.env)); err != nil {
+		panic(err)
+	} else {
+		// 反射envConf替换conf
+		defaultF := reflect.TypeOf(conf).Elem()
+		defaultV := reflect.ValueOf(conf).Elem()
+		envV := reflect.ValueOf(envConf).Elem()
+		for i := 0; i < defaultF.NumField(); i++ {
+			name := defaultF.Field(i).Name
+			eValue := envV.Field(i).Interface()
+			fmt.Println("--: name:", name, "val:", eValue)
+			fmt.Println()
+			switch name {
+			case "App":
+				defaultV.Field(i).Set(envV.Field(i))
+			default:
+				defaultV.Field(i).Set(envV.Field(i))
+			}
+		}
 	}
 	//full app name
-	conf.AppConf.FullAppName = fmt.Sprintf("%s-%s-%s", conf.AppConf.Group,
-		conf.AppConf.Name,
-		conf.AppConf.Env)
-	fmt.Printf("Load all configs success!\n")
+	conf.App.FullAppName = fmt.Sprintf("%s-%s-%s", conf.App.Group,
+		conf.App.Name,
+		conf.App.Env)
+	// flag config update
+	conf.App.Env = AppEnv(flagConf.env)
+	conf.App.NodeId = flagConf.nodeId
+	conf.Log.LogoutPath = flagConf.logout
+	fmt.Printf("--: load all configs success!\n")
 }
 
 //加载配置文件
-func LoadConfFile(fileName string, out interface{}) {
-	if _, err := yaml.DecodeFile(path.Join(configPath, fileName), out); err != nil {
-		log.Fatalf("load config %s fail,err:%v", fileName, err)
-		os.Exit(0)
-	} else {
-		bytes, _ := json.Marshal(out)
-		fmt.Printf("load config:%s, success! configs:%+v\n", fileName, string(bytes))
+func loadConfFile(fileName string) (*Config, error) {
+	fullPath := fmt.Sprintf("%s/%s", flagConf.configs, fileName)
+	buf, err := ioutil.ReadFile(fullPath)
+	if err != nil {
+		return nil, err
 	}
+	var out Config
+	if err = yaml.Unmarshal(buf, &out); err != nil {
+		return nil, fmt.Errorf("load config %s fail,err:%v", fileName, err)
+	}
+	return &out, nil
 }
 
 //获得配置信息
 func GetConf() *Config {
-	return &conf
+	return conf
 }

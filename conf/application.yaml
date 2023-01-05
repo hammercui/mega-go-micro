@@ -4,7 +4,7 @@ app:
   region: cn
   ip: 192.168.2.0
   nodeId: 1
-  env: prod
+  env: dev
   httpPort: 8858
   rpcPort: 52888
   webSocketPort: 9949
@@ -16,6 +16,7 @@ app:
 log:
   kafkaHookAddrs:
     - 192.168.2.20:9092
+  logoutPath: ""
 configCenter:
   consulAddrs:
     - 192.168.2.20:8500
@@ -39,11 +40,7 @@ mysql:
     dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
     warnThreshold: 50
   slave:
-    dbName: mega
-    addr: 192.168.2.20:3306
-    username: mega
-    password: mega
-    charset: utf8mb4
+    dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
     warnThreshold: 50
 redis:
   db0:
