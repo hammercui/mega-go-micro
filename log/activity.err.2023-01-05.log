@@ -1,0 +1,2 @@
+[2023/01/05 17:43:12.503][ERROR][redis/redis.go:52]redis direct connect fail! 192.168.2.114:6379,err:dial tcp 192.168.2.114:6379: connect: no route to host  name=mega-web-activity-prod nodeId=0.0.0.0 topics="[werewolf-web-activity-dev-log]"
+[2023/01/05 17:45:03.937][ERROR][redis/redis.go:52]redis direct connect fail! 192.168.1.114:6379,err:dial tcp 192.168.1.114:6379: connect: connection refused  name=mega-web-activity-prod nodeId=0.0.0.0 topics="[werewolf-web-activity-dev-log]"

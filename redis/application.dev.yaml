@@ -34,6 +34,7 @@ kafka:
   addrs:
     - 192.168.2.20:9092
   topic: ""
+  dialTimeout: 2
 mongo:
   default:
     enable: true

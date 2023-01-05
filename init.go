@@ -32,10 +32,10 @@ func InitApp() *InfraApp {
 
 	//4 新建配置中心合并配置
 	confWatch := watch.InitConfWatch()
-	//5 redis client map
+	//5 init redis
 	redisMap := infraRedis.InitRedis()
 	//6 init broker
-	brokerIns := infraBroker.NewKafkaBroker()
+	brokerIns := infraBroker.InitKafkaBroker()
 	//7 init trace
 	skyWalking := skyWalking2.NewSkyTracer()
 

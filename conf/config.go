@@ -85,6 +85,7 @@ type KafkaConf struct {
 	Addrs  []string `json:"addrs"     yaml:"addrs"`
 	Topic  string   `json:"topic" yaml:"topic"`
 	Enable bool     `json:"enable" yaml:"enable" `
+	DialTimeout int `json:"dialTimeout" yaml:"dialTimeout" `
 }
 
 //mongo配置
