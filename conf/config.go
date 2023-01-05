@@ -60,8 +60,11 @@ type AppConf struct {
 
 //日志配置
 type LogConf struct {
-	KafkaHookAddrs []string `json:"kafkaHookAddrs"      yaml:"kafkaHookAddrs"`
-	LogoutPath     string   `json:"logoutPath" yaml:"logoutPath"`
+	KafkaHookEnable bool     `json:"kafkaHookEnable"      yaml:"kafkaHookEnable"`
+	KafkaHookAddrs  []string `json:"kafkaHookAddrs"      yaml:"kafkaHookAddrs"`
+	KafkaHookTopic  string   `json:"kafkaHookTopic"      yaml:"kafkaHookTopic"`
+	LogoutPath      string   `json:"logoutPath" yaml:"logoutPath"`
+	MaxDay          int      `json:"maxDay" yaml:"maxDay"`
 }
 
 //配置中心
@@ -75,7 +78,6 @@ type ConfigCenter struct {
 type ConsulConf struct {
 	Addrs   []string `json:"addrs" yaml:"addrs"`
 	ConfKey string   `json:"confKey" yaml:"confKey"`
-	Enable  bool     `json:"enable" yaml:"enable" `
 }
 
 //kafka配置
@@ -142,16 +144,16 @@ func parseFlag() {
 	//读取flag 配置文件默认路径
 	defaultPath, _ := os.Getwd()
 	flag.StringVar(&flagConf.configs, "configs", defaultPath, "configs path")
-	flag.StringVar(&flagConf.logout, "logout", defaultPath, "logout path")
+	//flag.StringVar(&flagConf.logout, "logout", defaultPath, "logout path")
 	flag.StringVar(&flagConf.version, "version", "1.0.0", "input this app version, eg: -app.version=1.0.0")
-	flag.StringVar(&flagConf.env, "env", "prod", "input app runtime environment,eg:dev,beta,prod")
+	flag.StringVar(&flagConf.env, "env", "dev", "input app runtime environment,eg:dev,beta,prod")
 	flag.StringVar(&flagConf.nodeId, "nodeId", "1", "input app node id, must be unique")
 	flag.StringVar(&flagConf.nodeId, "ip", "0.0.0.0", "input app ip, for server discovery")
 	flag.Parse()
 
-	fmt.Println("-------config console-------")
+	fmt.Println("-------config init console-------")
 	fmt.Println("--: config path", flagConf.configs)
-	fmt.Println("--: logout path", flagConf.logout)
+	//fmt.Println("--: logout path", flagConf.logout)
 }
 
 //初始化配置信息
@@ -191,7 +193,7 @@ func InitConfig() {
 	// flag config update
 	conf.App.Env = AppEnv(flagConf.env)
 	conf.App.NodeId = flagConf.nodeId
-	conf.Log.LogoutPath = flagConf.logout
+	//conf.Log.LogoutPath = flagConf.logout
 	conf.App.IP = flagConf.ip
 	fmt.Printf("--: load all configs success!\n")
 }

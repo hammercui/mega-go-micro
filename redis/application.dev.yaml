@@ -14,16 +14,18 @@ app:
     kafkaHookTopic: ""
     phpMainUrl: ""
 log:
+  kafkaHookEnable: false
   kafkaHookAddrs:
     - 192.168.2.20:9092
-  logoutPath: ""
+  kafkaHookTopic: ""
+  logoutPath: "/home/hammer/Desktop/goProjects/mega-go-micro/log"
+  maxDay: 30
 configCenter:
-  enable: true
+  enable: false
   consulAddrs:
     - 192.168.2.20:8500
   confKey: werewolf_conf
 consul:
-  enable: true
   addrs:
     - 192.168.2.20:8500
   confKey: werewolf_conf
@@ -56,7 +58,7 @@ mysql:
 redis:
   db0:
     enable: true
-    addr: 192.168.2.20:6379
+    addr: 127.0.0.1:6379
     password: ""
     database: 0
   db1:
@@ -64,5 +66,5 @@ redis:
     sentinel:
       master: mymaster
       nodes:
-        - 192.168.2.20:27000
+        - 127.0.0.1:27000
     database: 1

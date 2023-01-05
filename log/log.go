@@ -19,17 +19,17 @@ import (
 
 var logrusSingle *logrus.Entry
 
-func InitLog(opts *conf.AppOpts) {
+func InitLog() {
 	//配置文件
-	appConfig := conf.GetConf().AppConf
+	_conf := conf.GetConf()
+	appConfig := _conf.App
 	nodeId := appConfig.NodeId
-
+	fmt.Println("-------log init console-------")
 	//是否使用通用topic werewolf-web-activity-{env}-log为通用topic,供多个项目使用
 	topic := fmt.Sprintf("werewolf-web-activity-%s-log", appConfig.Env)
-	if customTopic, ok := appConfig.Custom["kafkaHookTopic"]; ok && customTopic != "" {
-		topic = customTopic
+	if _conf.Log != nil && _conf.Log.KafkaHookTopic != "" {
+		topic = _conf.Log.KafkaHookTopic
 	}
-
 	//加载日志,使用logrus
 	logrusEntry := logrus.WithFields(logrus.Fields{
 		"name":   appConfig.FullAppName,
@@ -45,16 +45,16 @@ func InitLog(opts *conf.AppOpts) {
 
 	logrusIns.SetLevel(logrus.DebugLevel) //日志级别
 	logrusIns.AddHook(NewLineHook())
-	if appConfig.Env != conf.AppEnv_local {
-		if opts != nil && opts.IsKafkaLogsOn{
-			logrusIns.AddHook(getKafkaHook())
-		}
+	//kafka hook
+	if _conf.Log.KafkaHookEnable {
+		logrusIns.AddHook(getKafkaHook())
 	}
+
 	logrusIns.AddHook(getWriteAllFileHook())   //全部日志
 	logrusIns.AddHook(getWriteErrorFileHook()) //错误日志
 	logrusSingle = logrusEntry
 
-	////系统级默认日志
+	//系统级默认日志
 	l := lr.NewLogger(lr.WithLogger(logrusIns)).Fields(map[string]interface{}{
 		"name":   appConfig.FullAppName,
 		"nodeId": nodeId,
@@ -62,7 +62,8 @@ func InitLog(opts *conf.AppOpts) {
 	})
 	logger.DefaultLogger = l
 	//打印配置
-	logrusSingle.Info("Load consul config:", conf.GetConf().ConsulConf)
+	logrusSingle.Infof("-------log init console-------")
+	logrusSingle.Infof("init log success! %+v", _conf.Log)
 }
 
 //获得日志实例

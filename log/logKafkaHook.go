@@ -122,7 +122,7 @@ func (hook *KafkaHook) Fire(entry *logrus.Entry) error {
 
 //获得kafka hook实例
 func getKafkaHook() *KafkaHook {
-	appConfig := conf.GetConf().AppConf
+	_conf := conf.GetConf()
 	//全部日志
 	levelArray := []logrus.Level{
 		logrus.InfoLevel,
@@ -132,14 +132,14 @@ func getKafkaHook() *KafkaHook {
 		logrus.WarnLevel,
 	}
 	//非prod环境打印debug
-	if appConfig.Env != conf.AppEnv_prod {
+	if _conf.App.Env != conf.AppEnv_prod {
 		levelArray = append(levelArray, logrus.DebugLevel)
 	}
 	hook, err := NewKafkaHook(
 		"kh",
 		levelArray,
 		&logrus.JSONFormatter{},
-		appConfig.KafkaHookAddrs,
+		_conf.Log.KafkaHookAddrs,
 	)
 	if err != nil {
 		Logger().Errorf("kafka err:%+v", err)

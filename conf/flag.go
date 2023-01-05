@@ -2,9 +2,9 @@ package conf
 
 type FlagConf struct {
 	configs string
-	logout  string
+	//logout  string
 	version string
 	env     string
 	nodeId  string
-	ip 		string
+	ip      string
 }

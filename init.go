@@ -22,21 +22,21 @@ func InitApp() *InfraApp {
 	//1 配置初始化
 	conf.InitConfig()
 	//2 日志初始化
-	log.InitLog(nil)
-	//3 自定义consul注册
-	consulConf := conf.GetConf().ConsulConf
+	log.InitLog()
+	//3 consul注册
+	_conf := conf.GetConf()
 	reg := consul.NewRegistry(func(op *registry.Options) {
-		op.Addrs = consulConf.Addrs
+		op.Addrs = _conf.Consul.Addrs
 	})
 	sel := selector.NewSelector(selector.Registry(reg))
 
 	//4 新建配置中心合并配置
-	confWatch := watch.NewConfWatch()
-	//5 redis client
-	redisClient := infraRedis.DefaultRedisClient()
+	confWatch := watch.InitConfWatch()
+	//5 redis client map
+	redisMap := infraRedis.InitRedis()
 	//6 init broker
 	brokerIns := infraBroker.NewKafkaBroker()
-
+	//7 init trace
 	skyWalking := skyWalking2.NewSkyTracer()
 
 	//7 初始化
@@ -45,21 +45,21 @@ func InitApp() *InfraApp {
 		ReadWriteDB:        mysql.DefaultMysqlReadWrite(),
 		Reg:                reg,
 		Selector:           sel,
-		RedisClient:        redisClient,
+		RedisMap:           redisMap,
 		Broker:             brokerIns,
 		ConfWatch:          confWatch,
 		SkyWalking:         skyWalking,
 		readOnlyDBPoolMap:  make(map[string]*mysql.DBPool),
 		readWriteDBPoolMap: make(map[string]*mysql.DBPool),
-		redisPoolMap:       make(map[string]*infraRedis.RedisPool),
+		//redisPoolMap:       make(map[string]*infraRedis.RedisPool),
 	}
 	//8 池化
 	appConf := conf.GetConf()
 	app.SetReadOnlyDBPool(appConf.AppConf.Name, mysql.DefaultMysqlReadOnlyDsn(), app.ReadOnlyDB)
 	app.SetReadWriteDBPool(appConf.AppConf.Name, mysql.DefaultMysqlReadWriteDsn(), app.ReadWriteDB)
-	app.SetRedisPool(appConf.AppConf.Name,appConf.RedisConf.Addr,appConf.RedisConf.DbIndex,app.RedisClient)
+	//app.SetRedisPool(appConf.AppConf.Name, appConf.RedisConf.Addr, appConf.RedisConf.DbIndex, app.RedisClient)
 	//9 监听配置
-	regisConfWatch()
+	//regisConfWatch()
 
 	return app
 }

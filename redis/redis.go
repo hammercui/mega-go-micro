@@ -13,56 +13,67 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/hammercui/mega-go-micro/conf"
 	"github.com/hammercui/mega-go-micro/log"
-	"os"
 )
 
-func DefaultRedisClient() *redis.Client {
-	appConf := conf.GetConf().AppConf
-	redisConf := conf.GetConf().RedisConf
-	if appConf.Env == conf.AppEnv_local {
-		return NewRedisClientByDirect(redisConf)
+func init() {}
+
+func InitRedis() map[string]*redis.Client {
+	log.Logger().Infof("-------redis init console-------")
+	_map := make(map[string]*redis.Client)
+	for k, v := range conf.GetConf().RedisMap {
+		if v.Enable {
+			_map[k] = getClient(v)
+		}
 	}
-	return NewRedisClientBySentinel(redisConf)
+	return _map
 }
 
-//初始化redis
-func NewRedisClientByDirect(redisConf *conf.RedisConf) *redis.Client {
-	opts := &redis.Options{
-		Addr:     redisConf.Addr,
-		DB:       redisConf.DbIndex, // use default DB
+func getClient(redisConf *conf.RedisConf) *redis.Client {
+	if redisConf.Sentinel == nil {
+		return getClientByDirect(redisConf)
+	} else {
+		return getClientBySentinel(redisConf)
 	}
-	if redisConf.Password != "" && len(redisConf.Password) > 1{
+}
+
+//获得直连redis
+func getClientByDirect(redisConf *conf.RedisConf) *redis.Client {
+	opts := &redis.Options{
+		Addr: redisConf.Addr,
+		DB:   redisConf.DbIndex, // use default DB
+	}
+	if redisConf.Password != "" && len(redisConf.Password) > 1 {
 		opts.Password = redisConf.Password
 	}
 	//connect redis
 	redisClient := redis.NewClient(opts)
 	pong, err := redisClient.Ping().Result()
 	if err != nil {
-		log.Logger().Infof("redis direct connect:%s fail,err:%v", redisConf.Addr, err)
-		log.Logger().Error(err)
-		os.Exit(0)
+		log.Logger().Errorf("redis direct connect fail! %s,err:%v", redisConf.Addr, err)
+		panic(err)
 	}
-	log.Logger().Infof("redis direct connect:%s %s !", redisConf.Addr, pong)
+	log.Logger().Infof("redis direct connect success! %s %s !", redisConf.Addr, pong)
 	return redisClient
 }
 
-func NewRedisClientBySentinel(redisConf *conf.RedisConf) *redis.Client {
+//获得sentinel redis
+func getClientBySentinel(redisConf *conf.RedisConf) *redis.Client {
 	//connect redis
 	flOpts := &redis.FailoverOptions{
-		MasterName:    "mymaster",
-		SentinelAddrs: redisConf.Sentinels,
+		MasterName:    redisConf.Sentinel.Master,
+		SentinelAddrs: redisConf.Sentinel.Nodes,
 		DB:            redisConf.DbIndex,
 	}
-	if redisConf.Password != "" && len(redisConf.Password) > 1{
+	if redisConf.Password != "" && len(redisConf.Password) > 1 {
 		flOpts.Password = redisConf.Password
 	}
 	redisClient := redis.NewFailoverClient(flOpts)
 	pong, err := redisClient.Ping().Result()
 	if err != nil {
-		log.Logger().Error("redis sentinel connect fail!err:%v", err)
-		os.Exit(0)
+		log.Logger().Errorf("redis sentinel connect fail! %s,err:%v", redisConf.Sentinel.Nodes, err)
+		panic(err)
 	}
-	log.Logger().Info("redis sentinel connect success!%s ！", pong)
+	log.Logger().Infof("redis sentinel connect success! %s %s ！", redisConf.Sentinel.Nodes, pong)
 	return redisClient
 }
 
