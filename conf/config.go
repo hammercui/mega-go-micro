@@ -41,6 +41,7 @@ type Config struct {
 	MongoMap     map[string]*MongoConf          `json:"mongo"         yaml:"mongo"`
 	MysqlMap     map[string]*MysqlReadWriteConf `json:"mysql"         yaml:"mysql"`
 	RedisMap     map[string]*RedisConf          `json:"redis"         yaml:"redis"`
+	Tracer       *TracerConf                    `json:"tracer" yaml:"tracer"`
 }
 
 //应用配置
@@ -63,6 +64,7 @@ type LogConf struct {
 	KafkaHookEnable bool     `json:"kafkaHookEnable"      yaml:"kafkaHookEnable"`
 	KafkaHookAddrs  []string `json:"kafkaHookAddrs"      yaml:"kafkaHookAddrs"`
 	KafkaHookTopic  string   `json:"kafkaHookTopic"      yaml:"kafkaHookTopic"`
+	Level           string   `json:"level" yaml:"level"`
 	LogoutPath      string   `json:"logoutPath" yaml:"logoutPath"`
 	MaxDay          int      `json:"maxDay" yaml:"maxDay"`
 }
@@ -82,10 +84,10 @@ type ConsulConf struct {
 
 //kafka配置
 type KafkaConf struct {
-	Addrs  []string `json:"addrs"     yaml:"addrs"`
-	Topic  string   `json:"topic" yaml:"topic"`
-	Enable bool     `json:"enable" yaml:"enable" `
-	DialTimeout int `json:"dialTimeout" yaml:"dialTimeout" `
+	Addrs       []string `json:"addrs"     yaml:"addrs"`
+	Topic       string   `json:"topic" yaml:"topic"`
+	Enable      bool     `json:"enable" yaml:"enable" `
+	DialTimeout int      `json:"dialTimeout" yaml:"dialTimeout" `
 }
 
 //mongo配置
@@ -108,7 +110,7 @@ type MysqlConf struct {
 	DSN string `json:"dsn" yaml:"dsn"`
 	//sql执行警告阈值，毫秒
 	WarnThreshold int  `json:"warnThreshold" yaml:"warnThreshold"`
-	Enable        bool `json:"enable" yaml:"enable" `
+	DebugInfo     bool `json:"debugInfo" yaml:"debugInfo" `
 }
 
 //redis配置
@@ -123,6 +125,12 @@ type RedisConf struct {
 type RedisSentinelConf struct {
 	Master string   `json:"master" yaml:"master"`
 	Nodes  []string `json:"nodes" yaml:"nodes"`
+}
+
+type TracerConf struct {
+	Enable     bool   `json:"enable" yaml:"enable"`
+	TracerType string `json:"traceType" yaml:"traceType"`
+	Addr       string `json:"addr" yaml:"addr"`
 }
 
 type AppOpts struct {
@@ -149,7 +157,7 @@ func parseFlag() {
 	flag.StringVar(&flagConf.version, "version", "1.0.0", "input this app version, eg: -app.version=1.0.0")
 	flag.StringVar(&flagConf.env, "env", "dev", "input app runtime environment,eg:dev,beta,prod")
 	flag.StringVar(&flagConf.nodeId, "nodeId", "1", "input app node id, must be unique")
-	flag.StringVar(&flagConf.nodeId, "ip", "0.0.0.0", "input app ip, for server discovery")
+	flag.StringVar(&flagConf.ip, "ip", "0.0.0.0", "input app ip, for server discovery")
 	flag.Parse()
 
 	fmt.Println("-------config init console-------")

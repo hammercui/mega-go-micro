@@ -43,15 +43,15 @@ mysql:
   db0:
     enable: true
     master:
-      dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
+      dsn: mega:mega@tcp(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
       warnThreshold: 50
     slave:
-      dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
+      dsn: mega:mega@tcp(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
       warnThreshold: 50
   db1:
     enable: true
     master:
-      dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
+      dsn: mega:mega@tcp(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
       warnThreshold: 50
 redis:
   db0:

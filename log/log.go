@@ -22,51 +22,77 @@ var logrusSingle *logrus.Entry
 func InitLog() {
 	//配置文件
 	_conf := conf.GetConf()
-	appConfig := _conf.App
-	nodeId := appConfig.NodeId
+	nodeId := _conf.App.NodeId
 	fmt.Println("-------log init console-------")
-	//是否使用通用topic werewolf-web-activity-{env}-log为通用topic,供多个项目使用
-	topic := fmt.Sprintf("werewolf-web-activity-%s-log", appConfig.Env)
+	//日志使用的topic
+	topic := fmt.Sprintf("default-%s-log", _conf.App.Env)
 	if _conf.Log != nil && _conf.Log.KafkaHookTopic != "" {
 		topic = _conf.Log.KafkaHookTopic
 	}
 	//加载日志,使用logrus
-	logrusEntry := logrus.WithFields(logrus.Fields{
-		"name":   appConfig.FullAppName,
+	_logrusEntry := logrus.WithFields(logrus.Fields{
+		"name":   _conf.App.FullAppName,
 		"nodeId": nodeId,
 		"topics": []string{topic},
 	})
-	logrusIns := logrusEntry.Logger
-	logrusIns.SetFormatter(&TerminalTextFormatter{
+
+	_logrusIns := _logrusEntry.Logger
+	_logrusIns.SetFormatter(&TerminalTextFormatter{
 		IsTerminal:      true,
 		TimestampFormat: "2006/01/02 15:04:05.999",
 	})
-	logrusIns.SetOutput(os.Stdout)
-
-	logrusIns.SetLevel(logrus.DebugLevel) //日志级别
-	logrusIns.AddHook(NewLineHook())
+	_logrusIns.SetOutput(os.Stdout)
+	_logrusIns.SetLevel(formLogLevel(_conf.Log.Level)) //日志级别
+	_logrusIns.AddHook(NewLineHook())
 	//kafka hook
 	if _conf.Log.KafkaHookEnable {
-		logrusIns.AddHook(getKafkaHook())
+		_logrusIns.AddHook(getKafkaHook())
 	}
+	_logrusIns.AddHook(getWriteAllFileHook())   //全部日志
+	_logrusIns.AddHook(getWriteErrorFileHook()) //错误日志
 
-	logrusIns.AddHook(getWriteAllFileHook())   //全部日志
-	logrusIns.AddHook(getWriteErrorFileHook()) //错误日志
-	logrusSingle = logrusEntry
-
-	//系统级默认日志
-	l := lr.NewLogger(lr.WithLogger(logrusIns)).Fields(map[string]interface{}{
-		"name":   appConfig.FullAppName,
+	//micro框架层日志替换为logrus
+	l := lr.NewLogger(lr.WithLogger(_logrusIns)).Fields(map[string]interface{}{
+		"name":   _conf.App.FullAppName,
 		"nodeId": nodeId,
 		"topics": []string{topic},
 	})
 	logger.DefaultLogger = l
+
 	//打印配置
+	logrusSingle = _logrusEntry
 	logrusSingle.Infof("-------log init console-------")
 	logrusSingle.Infof("init log success! %+v", _conf.Log)
+}
+
+func formLogLevel(level string) logrus.Level {
+	switch level {
+	case "warn":
+		return logrus.WarnLevel
+	case "info":
+		return logrus.InfoLevel
+	case "debug":
+		return logrus.DebugLevel
+	default:
+		return logrus.TraceLevel
+	}
 }
 
 //获得日志实例
 func Logger() *logrus.Entry {
 	return logrusSingle
+}
+
+func Set(entry *logrus.Entry) {
+	if logrusSingle == nil {
+		logrusSingle = entry
+	}
+}
+
+func DefaultLogrus() *logrus.Entry {
+	_logrusEntry := logrus.WithFields(logrus.Fields{})
+	_logrusIns := _logrusEntry.Logger
+	l := lr.NewLogger(lr.WithLogger(_logrusIns)).Fields(map[string]interface{}{})
+	logger.DefaultLogger = l
+	return _logrusEntry
 }

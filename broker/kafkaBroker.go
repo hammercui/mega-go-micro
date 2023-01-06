@@ -20,7 +20,14 @@ import (
 )
 
 func InitKafkaBroker() broker.Broker {
-	kafkaConf := conf.GetConf().Kafka
+	_conf := conf.GetConf()
+	if _conf.Kafka == nil {
+		return nil
+	}
+	kafkaConf := _conf.Kafka
+	if !kafkaConf.Enable{
+		return nil
+	}
 	log.Logger().Info("-------kafka init console-------")
 	return newKafka(kafkaConf)
 }

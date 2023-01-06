@@ -18,8 +18,12 @@ import (
 func init() {}
 
 func InitRedis() map[string]*redis.Client {
-	log.Logger().Infof("-------redis init console-------")
 	_map := make(map[string]*redis.Client)
+	if conf.GetConf().RedisMap == nil || len(conf.GetConf().RedisMap) == 0 {
+		return _map
+	}
+
+	log.Logger().Infof("-------redis init console-------")
 	for k, v := range conf.GetConf().RedisMap {
 		if v.Enable {
 			_map[k] = getClient(v)

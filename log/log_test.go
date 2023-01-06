@@ -9,3 +9,9 @@ func TestInitLog(t *testing.T) {
 	conf.InitConfig()
 	InitLog()
 }
+
+func TestDefault(t *testing.T) {
+	_logrus := DefaultLogrus()
+	Set(_logrus)
+	Logger().Infof("default success")
+}

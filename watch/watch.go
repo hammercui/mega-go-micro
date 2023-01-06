@@ -32,6 +32,10 @@ type ConfWatch struct {
 func InitConfWatch() *ConfWatch {
 	_conf := conf.GetConf()
 	env := _conf.App.Env
+	if _conf.ConfigCenter == nil || !_conf.ConfigCenter.Enable{
+		return nil
+	}
+
 	key := _conf.ConfigCenter.ConfKey
 	//if len(conf.GetConf().ConfigCenter.ConfKey) != 0 {
 	//	key = conf.GetConf().ConfigCenter.ConfKey

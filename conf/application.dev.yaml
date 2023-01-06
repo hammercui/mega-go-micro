@@ -11,7 +11,6 @@ app:
   custom:
     sendDing: "http://dingUrl"
     sentryDsn: "http://dsn"
-    kafkaHookTopic: ""
     phpMainUrl: ""
 log:
   kafkaHookEnable: false
@@ -20,6 +19,7 @@ log:
   kafkaHookTopic: ""
   logoutPath: "/home/hammer/Desktop/goProjects/mega-go-micro/log"
   maxDay: 30
+  level: debug
 configCenter:
   enable: false
   consulAddrs:
@@ -36,9 +36,9 @@ kafka:
   topic: ""
   dialTimeout: 2
 mongo:
-  default:
+  mega:
     enable: true
-    addr: mongodb://192.168.2.20:27017
+    addr: mongodb://localhost:27017/?maxPoolSize=500&minPoolSize=10
     dbName: test
     username: admin
     password: ""
@@ -48,6 +48,7 @@ mysql:
     master:
       dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
       warnThreshold: 50
+      debugInfo: true
     slave:
       dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
       warnThreshold: 50
@@ -69,3 +70,7 @@ redis:
       nodes:
         - 127.0.0.1:27000
     database: 1
+tracer:
+  enable: true
+  tracerType: skyWalking
+  addr: 127.0.0.1:11800

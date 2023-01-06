@@ -19,18 +19,19 @@ import (
 	infraLog "github.com/hammercui/mega-go-micro/log"
 )
 
-func NewGormLog(configs *conf.Config) *logger {
+func NewGormLog(c *conf.MysqlConf) *logger {
 	//默认执行超过10ms报警
 	slowThreshold := 10 * time.Millisecond
 
 	//读取配置
-	if(configs.MysqlConf.WarnThreshold > 0){
-		slowThreshold = configs.MysqlConf.WarnThreshold * time.Millisecond
+	if c.WarnThreshold > 0 {
+		slowThreshold = time.Duration(c.WarnThreshold) * time.Millisecond
 	}
 
 	return &logger{
 		SlowThreshold: slowThreshold,
-		Env:           configs.AppConf.Env,
+		//Env:           configs.AppConf.Env,
+		DebugInfo: c.DebugInfo,
 	}
 }
 
@@ -41,7 +42,8 @@ func NewGormLog(configs *conf.Config) *logger {
  */
 type logger struct {
 	SlowThreshold time.Duration
-	Env           conf.AppEnv
+	//Env           conf.AppEnv
+	DebugInfo bool
 }
 
 // LogMode log mode
@@ -53,7 +55,7 @@ func (l *logger) LogMode(level gormLogger.LogLevel) gormLogger.Interface {
 // Info print info
 func (l logger) Info(ctx context.Context, msg string, data ...interface{}) {
 	//l.Printf(l.infoStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
-	if l.Env != conf.AppEnv_prod {
+	if l.DebugInfo {
 		infraLog.Logger().Debug("GormDebug ", msg, data)
 	}
 }
@@ -83,7 +85,7 @@ func (l logger) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 		sql, rows := fc()
 		//l.Printf(l.traceWarnStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, rows, sql)
 		infraLog.Logger().Warnf("GormWarn |%fms |rows:%d |sql:%s", float64(elapsed.Nanoseconds())/1e6, rows, sql)
-	case l.Env == conf.AppEnv_local:
+	case l.DebugInfo:
 		sql, rows := fc()
 		//	//l.Printf(l.traceStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, rows, sql)
 		infraLog.Logger().Debugf("GormDebug |%fms |rows:%d |sql:%s", float64(elapsed.Nanoseconds())/1e6, rows, sql)
