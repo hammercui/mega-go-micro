@@ -1,6 +1,6 @@
-module github.com/hammercui/mega-go-micro
+module github.com/hammercui/mega-go-micro/v2
 
-go 1.13
+go 1.19
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 

@@ -12,8 +12,8 @@
 package main
 
 import (
-	infra "github.com/hammercui/mega-go-micro"
-	"github.com/hammercui/mega-go-micro/demo/http"
+	infra "github.com/hammercui/mega-go-micro/v2"
+	"github.com/hammercui/mega-go-micro/v2/demo/http"
 )
 
 func main() {
