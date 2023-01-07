@@ -17,14 +17,13 @@ import (
 	"github.com/hammercui/mega-go-micro/conf"
 	"github.com/hammercui/mega-go-micro/demo/handler"
 	pbGo "github.com/hammercui/mega-go-micro/demo/proto/pbGo"
-	"github.com/hammercui/mega-go-micro/tracer/skyWalking"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/server"
 	"strconv"
 )
 
 func Start(app *infra.InfraApp) {
-	appConf := conf.GetConf().AppConf
+	appConf := conf.GetConf().App
 	rpcName := fmt.Sprintf("%s-%s-rpc-%s", appConf.Group, appConf.Name, appConf.Env)
 	// New Service
 	// 创建新的服务，这里可以传入其它选项。
@@ -35,10 +34,10 @@ func Start(app *infra.InfraApp) {
 		micro.Metadata(map[string]string{
 			"version": "1.0.0",
 			"tags":    "werewolf,web,activity,rpc",
-			"ip":      appConf.Ip,
+			"ip":      appConf.IP,
 			"port":    strconv.Itoa(appConf.RpcPort),
 		}),
-		micro.WrapHandler(skyWalking.NewHandlerWrapper(app.SkyWalking, "User-Agent")),
+		//micro.WrapHandler(skyWalking.NewHandlerWrapper(app.Tracer, "User-Agent")),
 	)
 	service.Init()
 

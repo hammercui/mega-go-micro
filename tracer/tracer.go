@@ -23,9 +23,11 @@ func InitTracer()  *go2sky.Tracer{
 	log.Logger().Infof("-------tracer init console-------")
 	_conf := conf.GetConf()
 	if _conf.Tracer == nil{
+		log.Logger().Infof("trace not config")
 		return nil
 	}
 	if !_conf.Tracer.Enable{
+		log.Logger().Infof("trace disable")
 		return nil
 	}
 	if _conf.Tracer.TracerType == "skyWalking"{

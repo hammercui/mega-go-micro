@@ -14,7 +14,6 @@ import (
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
-	"reflect"
 )
 
 type AppEnv string
@@ -169,31 +168,32 @@ func parseFlag() {
 func InitConfig() {
 	parseFlag()
 	//load default yaml
-	if defaultConf, err := loadConfFile("application.yaml"); err != nil {
-		panic(err)
-	} else {
-		conf = defaultConf
-	}
+	//if defaultConf, err := loadConfFile("application.yaml"); err != nil {
+	//	panic(err)
+	//} else {
+	//	conf = defaultConf
+	//}
 	// load env yaml
 	if envConf, err := loadConfFile(fmt.Sprintf("application.%s.yaml", flagConf.env)); err != nil {
 		panic(err)
 	} else {
 		// 反射envConf替换conf
-		defaultF := reflect.TypeOf(conf).Elem()
-		defaultV := reflect.ValueOf(conf).Elem()
-		envV := reflect.ValueOf(envConf).Elem()
-		for i := 0; i < defaultF.NumField(); i++ {
-			name := defaultF.Field(i).Name
-			eValue := envV.Field(i).Interface()
-			fmt.Println("--: name:", name, "val:", eValue)
-			fmt.Println()
-			switch name {
-			case "App":
-				defaultV.Field(i).Set(envV.Field(i))
-			default:
-				defaultV.Field(i).Set(envV.Field(i))
-			}
-		}
+		//defaultF := reflect.TypeOf(conf).Elem()
+		//defaultV := reflect.ValueOf(conf).Elem()
+		//envV := reflect.ValueOf(envConf).Elem()
+		//for i := 0; i < defaultF.NumField(); i++ {
+		//	name := defaultF.Field(i).Name
+		//	eValue := envV.Field(i).Interface()
+		//	fmt.Println("--: name:", name, "val:", eValue)
+		//	fmt.Println()
+		//	switch name {
+		//	case "App":
+		//		defaultV.Field(i).Set(envV.Field(i))
+		//	default:
+		//		defaultV.Field(i).Set(envV.Field(i))
+		//	}
+		//}
+		conf = envConf
 	}
 	//full app name
 	conf.App.FullAppName = fmt.Sprintf("%s-%s-%s", conf.App.Group,
@@ -204,10 +204,10 @@ func InitConfig() {
 	conf.App.NodeId = flagConf.nodeId
 	//conf.Log.LogoutPath = flagConf.logout
 	conf.App.IP = flagConf.ip
-	fmt.Printf("--: env: %s!\n",conf.App.Env)
-	fmt.Printf("--: nodeId: %s!\n",conf.App.NodeId)
-	fmt.Printf("--: ip: %s!\n",conf.App.IP)
-	fmt.Printf("--: load all configs success!\n")
+	fmt.Printf("--: env: %s \n",conf.App.Env)
+	fmt.Printf("--: nodeId: %s \n",conf.App.NodeId)
+	fmt.Printf("--: ip: %s \n",conf.App.IP)
+	fmt.Printf("--: load all configs success \n")
 }
 
 //加载配置文件

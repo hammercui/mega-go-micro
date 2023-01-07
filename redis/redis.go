@@ -18,15 +18,18 @@ import (
 func init() {}
 
 func InitRedis() map[string]*redis.Client {
+	log.Logger().Infof("-------redis init console-------")
 	_map := make(map[string]*redis.Client)
 	if conf.GetConf().RedisMap == nil || len(conf.GetConf().RedisMap) == 0 {
+		log.Logger().Infof("redis not config")
 		return _map
 	}
-
-	log.Logger().Infof("-------redis init console-------")
 	for k, v := range conf.GetConf().RedisMap {
 		if v.Enable {
+			log.Logger().Infof("redis[%s] create",k)
 			_map[k] = getClient(v)
+		}else{
+			log.Logger().Infof("redis[%s] disable",k)
 		}
 	}
 	return _map

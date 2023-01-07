@@ -13,22 +13,18 @@ package main
 
 import (
 	infra "github.com/hammercui/mega-go-micro"
-	conf "github.com/hammercui/mega-go-micro/conf"
 	"github.com/hammercui/mega-go-micro/demo/http"
-	"github.com/hammercui/mega-go-micro/demo/rpc"
 )
 
 func main() {
-	app := infra.InitAppWithOpts(&conf.AppOpts{
-		IsConfWatchOn:  false,
-		IsBrokerOn:     false,
-		IsRedisOn:      true,
-		IsMongoOn:      false,
-		IsSqlOn:        false,
-		IsSkyWalkingOn: false,
-	})
+	//var env string
+	//flag.StringVar(&env,"env","","-env 后面的值")
+	//flag.Parse()
+	//fmt.Println("当前环境为：",env)
+
+	app := infra.InitApp()
 	// 启动http服务
-	go http.Start(app)
+	http.Start(app)
 	// 启动rpc
-	rpc.Start(app)
+	//rpc.Start(app)
 }

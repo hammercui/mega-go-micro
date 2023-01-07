@@ -9,15 +9,19 @@ import (
 )
 
 func InitMongo()  map[string]*mongo.Client {
+	log.Logger().Infof("-------mongo init console-------")
 	_map := make(map[string]*mongo.Client)
 	if conf.GetConf().MongoMap == nil || len(conf.GetConf().MongoMap) == 0 {
+		log.Logger().Infof("mongo not config")
 		return _map
 	}
 
-	log.Logger().Infof("-------mongo init console-------")
 	for k, v := range conf.GetConf().MongoMap {
 		if v.Enable {
+			log.Logger().Infof("mongo[%s] create",k)
 			_map[k] = newMongoClient(v)
+		}else{
+			log.Logger().Infof("mongo[%s] disable",k)
 		}
 	}
 	return _map

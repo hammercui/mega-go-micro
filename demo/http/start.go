@@ -35,7 +35,7 @@ func Start(app *infra.InfraApp) {
 	//注册路由
 	registerRouter(app, ginServer)
 
-	appConf := conf.GetConf().AppConf
+	appConf := conf.GetConf().App
 	webName := fmt.Sprintf("%s-%s-api-%s", appConf.Group, appConf.Name, appConf.Env)
 	webId := fmt.Sprintf("%s-%s", webName, appConf.NodeId)
 
@@ -63,7 +63,7 @@ func Start(app *infra.InfraApp) {
 		web.Metadata(map[string]string{
 			"version": "1.0.0",
 			"tags":    "werewolf,web,activity,api",
-			"ip":      appConf.Ip,
+			"ip":      appConf.IP,
 			"port":    strconv.Itoa(appConf.HttpPort),
 		}), //元数据
 		web.RegisterInterval(180*time.Second),
@@ -78,9 +78,9 @@ func Start(app *infra.InfraApp) {
 
 func registerRouter(app *infra.InfraApp, ginServer *gin.GinServer) {
 	//链路追踪
-	if app.SkyWalking != nil {
+	if app.Tracer != nil {
 		//ginRouter.Use(hammerHttp.SkyWalking(ginRouter, trace))
-		ginServer.Gin().Use(gin.SkyWalkingMiddleware(ginServer.Gin(), app.SkyWalking))
+		ginServer.Gin().Use(gin.SkyWalkingMiddleware(ginServer.Gin(), app.Tracer))
 	}
 
 	//demo
