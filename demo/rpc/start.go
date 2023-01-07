@@ -13,10 +13,10 @@ package rpc
 
 import (
 	"fmt"
-	infra "github.com/hammercui/mega-go-micro"
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/demo/handler"
-	pbGo "github.com/hammercui/mega-go-micro/demo/proto/pbGo"
+	infra "github.com/hammercui/mega-go-micro/v2"
+	"github.com/hammercui/mega-go-micro/v2/conf"
+	"github.com/hammercui/mega-go-micro/v2/demo/handler"
+	pbGo "github.com/hammercui/mega-go-micro/v2/demo/proto/pbGo"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/server"
 	"strconv"

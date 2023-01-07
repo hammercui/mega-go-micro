@@ -13,9 +13,9 @@ package test
 
 import (
 	"fmt"
-	infra "github.com/hammercui/mega-go-micro"
-	pbGo "github.com/hammercui/mega-go-micro/demo/proto/pbGo"
-	"github.com/hammercui/mega-go-micro/tool"
+	infra "github.com/hammercui/mega-go-micro/v2"
+	pbGo "github.com/hammercui/mega-go-micro/v2/demo/proto/pbGo"
+	"github.com/hammercui/mega-go-micro/v2/tool"
 	"testing"
 	"time"
 )

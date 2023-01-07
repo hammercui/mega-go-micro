@@ -3,7 +3,7 @@ import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 import "third/wrappers.proto";
 import "third/empty.proto";
-option go_package = ".;protoModel";
+option go_package = ".;protoDemo";
 
 service Demo {
   rpc Info (CommReq) returns (DemoResp) {

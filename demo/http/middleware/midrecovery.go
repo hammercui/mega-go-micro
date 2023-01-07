@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
-	"github.com/hammercui/mega-go-micro/log"
+	"github.com/hammercui/mega-go-micro/v2/log"
 	"io/ioutil"
 	"net/http"
 	//"net/http/httputil"
