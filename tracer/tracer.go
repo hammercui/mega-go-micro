@@ -20,7 +20,7 @@ import (
 )
 
 func InitTracer()  *go2sky.Tracer{
-	log.Logger().Infof("-------config init tracer-------")
+	log.Logger().Infof("-------tracer init console-------")
 	_conf := conf.GetConf()
 	if _conf.Tracer == nil{
 		return nil

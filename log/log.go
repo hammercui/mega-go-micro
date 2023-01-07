@@ -62,6 +62,10 @@ func InitLog() {
 	//打印配置
 	logrusSingle = _logrusEntry
 	logrusSingle.Infof("-------log init console-------")
+	logrusSingle.Infof("env: %s", _conf.App.Env)
+	logrusSingle.Infof("nodeId: %s", _conf.App.NodeId)
+	logrusSingle.Infof("ip: %s", _conf.App.IP)
+	logrusSingle.Infof("logout: %s", _conf.Log.LogoutPath)
 	logrusSingle.Infof("init log success! %+v", _conf.Log)
 }
 

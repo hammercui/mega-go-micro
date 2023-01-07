@@ -36,14 +36,14 @@ kafka:
   topic: ""
   dialTimeout: 2
 mongo:
-  mega:
+  default:
     enable: true
     addr: mongodb://localhost:27017/?maxPoolSize=500&minPoolSize=10
     dbName: test
     username: admin
     password: ""
 mysql:
-  db0:
+  default:
     enable: true
     master:
       dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
@@ -58,7 +58,7 @@ mysql:
       dsn: mega:mega(192.168.2.20:3306)/mega?charset=utf8mb4&parseTime=True&loc=Local
       warnThreshold: 50
 redis:
-  db0:
+  default:
     enable: true
     addr: 127.0.0.1:6379
     password: ""

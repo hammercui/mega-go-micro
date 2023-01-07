@@ -204,6 +204,9 @@ func InitConfig() {
 	conf.App.NodeId = flagConf.nodeId
 	//conf.Log.LogoutPath = flagConf.logout
 	conf.App.IP = flagConf.ip
+	fmt.Printf("--: env: %s!\n",conf.App.Env)
+	fmt.Printf("--: nodeId: %s!\n",conf.App.NodeId)
+	fmt.Printf("--: ip: %s!\n",conf.App.IP)
 	fmt.Printf("--: load all configs success!\n")
 }
 

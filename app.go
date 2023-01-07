@@ -17,7 +17,10 @@ import (
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"
 	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
 )
+
+var DEFAULT = "default"
 
 type InfraApp struct {
 	HttpRunning bool
@@ -42,43 +45,63 @@ type InfraApp struct {
 
 //instance
 var app *InfraApp
-//
-////指定名称的db链接入池
-//func (p *InfraApp) SetReadOnlyDBPool(key string, addr string, dbConn *gorm.DB) {
-//	if pool, ok := p.readOnlyDBPoolMap[key]; ok {
-//		pool.PushDB(dbConn)
-//	} else {
-//		readDBPool := mysql.NewDBPoll(addr, dbConn)
-//		p.readOnlyDBPoolMap[key] = readDBPool
-//	}
-//}
-//
-//func (p *InfraApp) GetReadOnlyDB(key string) *gorm.DB {
-//	return p.readOnlyDBPoolMap[key].GetDB()
-//}
-//
-//func (p *InfraApp) SetReadWriteDBPool(key string, addr string, dbConn *gorm.DB) {
-//	if pool, ok := p.readWriteDBPoolMap[key]; ok {
-//		pool.PushDB(dbConn)
-//	} else {
-//		readDBPool := mysql.NewDBPoll(addr, dbConn)
-//		p.readWriteDBPoolMap[key] = readDBPool
-//	}
-//}
-//
-//func (p *InfraApp) GetReadWriteDB(key string) *gorm.DB {
-//	return p.readWriteDBPoolMap[key].GetDB()
-//}
-//
-//func (p *InfraApp) SetRedisPool(key string, addr string, dbIndex int, client *redis.Client) {
-//	if pool, ok := p.redisPoolMap[key]; ok {
-//		pool.PushClient(client)
-//	} else {
-//		redisPool := infraRedis.NewRedisPool(key, addr, dbIndex, client)
-//		p.redisPoolMap[key] = redisPool
-//	}
-//}
-//
-//func (p *InfraApp) GetRedisClient(key string) *redis.Client {
-//	return p.redisPoolMap[key].GetClient()
-//}
+
+func (p *InfraApp) WriteDB() *gorm.DB {
+	if val, ok := p.MySqlMap[DEFAULT];ok{
+		return val.Master
+	}
+	return nil
+}
+func (p *InfraApp) ReadDB() *gorm.DB {
+	if val, ok := p.MySqlMap[DEFAULT];ok{
+		if val.Slave != nil{
+			return val.Slave
+		}
+		return val.Master
+	}
+	return nil
+}
+
+func (p *InfraApp) WriteDByName(name string) *gorm.DB {
+	if val, ok := p.MySqlMap[name];ok{
+		return val.Master
+	}
+	return nil
+}
+func (p *InfraApp) ReadDByName(name string) *gorm.DB {
+	if val, ok := p.MySqlMap[name];ok{
+		if val.Slave != nil{
+			return val.Slave
+		}
+		return val.Master
+	}
+	return nil
+}
+
+func (p *InfraApp) Mongo() *mongo.Client{
+	if val, ok := p.MongoMap[DEFAULT];ok{
+		return val
+	}
+	return nil
+}
+
+func (p *InfraApp) MongoByName(name string) *mongo.Client{
+	if val, ok := p.MongoMap[name];ok{
+		return val
+	}
+	return nil
+}
+
+func (p *InfraApp) Redis() *redis.Client  {
+	if val, ok := p.RedisMap[DEFAULT];ok{
+		return val
+	}
+	return nil
+}
+
+func (p *InfraApp) RedisByName(name string) *redis.Client  {
+	if val, ok := p.RedisMap[name];ok{
+		return val
+	}
+	return nil
+}
