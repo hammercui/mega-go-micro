@@ -11,8 +11,8 @@ package infra
 import (
 	"github.com/go-redis/redis"
 	"github.com/hammercui/go2sky"
-	"github.com/hammercui/mega-go-micro/mysql"
-	"github.com/hammercui/mega-go-micro/watch"
+	"github.com/hammercui/mega-go-micro/v2/mysql"
+	"github.com/hammercui/mega-go-micro/v2/watch"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"

@@ -11,7 +11,7 @@ package log
 import (
 	"errors"
 	"github.com/Shopify/sarama"
-	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/v2/conf"
 	"github.com/sirupsen/logrus"
 	"time"
 )

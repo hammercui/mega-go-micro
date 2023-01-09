@@ -12,8 +12,8 @@
 package broker
 
 import (
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/log"
+	"github.com/hammercui/mega-go-micro/v2/conf"
+	"github.com/hammercui/mega-go-micro/v2/log"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-plugins/broker/kafka/v2"
 	"time"

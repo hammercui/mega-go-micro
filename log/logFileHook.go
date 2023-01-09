@@ -10,7 +10,7 @@ package log
 
 import (
 	"fmt"
-	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/v2/conf"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/pkg/errors"
 	"github.com/rifflock/lfshook"

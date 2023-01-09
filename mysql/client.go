@@ -1,8 +1,8 @@
 package mysql
 
 import (
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/log"
+	"github.com/hammercui/mega-go-micro/v2/conf"
+	"github.com/hammercui/mega-go-micro/v2/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"

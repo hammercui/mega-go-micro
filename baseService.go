@@ -10,6 +10,7 @@ package infra
 
 type BaseService struct {
 	App *InfraApp
+	id int
 }
 
 func NewBaseService(app *InfraApp) *BaseService {

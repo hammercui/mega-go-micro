@@ -1,8 +1,8 @@
 package mongo
 
 import (
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/log"
+	"github.com/hammercui/mega-go-micro/v2/conf"
+	"github.com/hammercui/mega-go-micro/v2/log"
 	"testing"
 )
 

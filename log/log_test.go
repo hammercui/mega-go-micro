@@ -1,7 +1,7 @@
 package log
 
 import (
-	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/v2/conf"
 	"testing"
 )
 

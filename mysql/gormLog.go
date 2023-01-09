@@ -15,8 +15,8 @@ import (
 	"context"
 	gormLogger "gorm.io/gorm/logger"
 	"time"
-	"github.com/hammercui/mega-go-micro/conf"
-	infraLog "github.com/hammercui/mega-go-micro/log"
+	"github.com/hammercui/mega-go-micro/v2/conf"
+	infraLog "github.com/hammercui/mega-go-micro/v2/log"
 )
 
 func NewGormLog(c *conf.MysqlConf) *logger {

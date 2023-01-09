@@ -10,7 +10,7 @@ package log
 
 import (
 	"fmt"
-	"github.com/hammercui/mega-go-micro/conf"
+	"github.com/hammercui/mega-go-micro/v2/conf"
 	"github.com/micro/go-micro/v2/logger"
 	lr "github.com/micro/go-plugins/logger/logrus/v2"
 	"github.com/sirupsen/logrus"

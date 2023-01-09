@@ -1,15 +1,15 @@
 package infra
 
 import (
-	infraBroker "github.com/hammercui/mega-go-micro/broker"
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/log"
-	"github.com/hammercui/mega-go-micro/mongo"
-	"github.com/hammercui/mega-go-micro/mysql"
-	infraRedis "github.com/hammercui/mega-go-micro/redis"
-	"github.com/hammercui/mega-go-micro/registry/consul"
-	"github.com/hammercui/mega-go-micro/tracer"
-	"github.com/hammercui/mega-go-micro/watch"
+	infraBroker "github.com/hammercui/mega-go-micro/v2/broker"
+	"github.com/hammercui/mega-go-micro/v2/conf"
+	"github.com/hammercui/mega-go-micro/v2/log"
+	"github.com/hammercui/mega-go-micro/v2/mongo"
+	"github.com/hammercui/mega-go-micro/v2/mysql"
+	infraRedis "github.com/hammercui/mega-go-micro/v2/redis"
+	"github.com/hammercui/mega-go-micro/v2/registry/consul"
+	"github.com/hammercui/mega-go-micro/v2/tracer"
+	"github.com/hammercui/mega-go-micro/v2/watch"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"
 )

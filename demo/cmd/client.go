@@ -13,7 +13,7 @@ package main
 
 import (
 	"fmt"
-	infra "github.com/hammercui/mega-go-micro"
+	infra "github.com/hammercui/mega-go-micro/v2"
 	"github.com/micro/go-micro/v2/config"
 )
 

@@ -13,12 +13,12 @@ package handler
 
 import (
 	"context"
-	infra "github.com/hammercui/mega-go-micro"
-	pbGo "github.com/hammercui/mega-go-micro/demo/proto/pbGo"
+	infra "github.com/hammercui/mega-go-micro/v2"
+	pbGo "github.com/hammercui/mega-go-micro/v2/demo/proto/pbGo"
 )
 
 type DemoService struct {
-	base *infra.BaseService
+	infra.BaseService
 }
 
 func (d DemoService) Info(ctx context.Context, req *pbGo.CommReq, resp *pbGo.DemoResp) error {
@@ -28,7 +28,5 @@ func (d DemoService) Info(ctx context.Context, req *pbGo.CommReq, resp *pbGo.Dem
 }
 
 func NewDemoService(app *infra.InfraApp) *DemoService {
-	return &DemoService{
-		base: infra.NewBaseService(app),
-	}
+	return &DemoService{ infra.BaseService{App:app}}
 }

@@ -15,8 +15,8 @@ import (
 	"fmt"
 	"github.com/hammercui/go2sky"
 	"github.com/hammercui/go2sky/reporter"
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/log"
+	"github.com/hammercui/mega-go-micro/v2/conf"
+	"github.com/hammercui/mega-go-micro/v2/log"
 )
 
 func InitTracer()  *go2sky.Tracer{
