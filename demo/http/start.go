@@ -29,14 +29,15 @@ func Start(app *infra.InfraApp) {
 	ginServer := gin.NewMegaGinServer(app,
 		gin.Logger(),
 		gin.Recovery(),
-	)
-	//设置返回字段模板
-	ginServer.SetResponseFields([]gin.HttpResponseFiled{
+	).SetResponseFields([]gin.HttpResponseFiled{
 		{Name:"message",FieldType: "string"},
 		{Name:"code",FieldType: "int"},
 		{Name:"success",FieldType: "bool"},
 		{Name:"data",FieldType: "interface"},
-	})
+	}).
+		SetResponseSuccessCode(200).
+		SetResponseFailCode(400) //设置返回字段模板
+
 
 	//注册路由
 	registerRouter(app, ginServer)

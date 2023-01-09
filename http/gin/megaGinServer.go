@@ -34,6 +34,8 @@ var defaultResponseFields = []HttpResponseFiled{
 	{Name: "code", FieldType: "int"},
 	{Name: "success", FieldType: "bool"},
 }
+var responseSuccessCode = http.StatusOK
+var responseFailCode    = http.StatusBadRequest
 
 type GinServer struct {
 	ginRouter *gin.Engine
@@ -186,12 +188,12 @@ func (p *GinServer) handleEndpointResult(c *gin.Context,errorResult []reflect.Va
 			var body = make(gin.H)
 			for _, f := range defaultResponseFields {
 				switch f.FieldType {
-				case "int":
-					body[f.Name] = http.StatusBadRequest
-				case "bool":
-					body[f.Name] = true
 				case "string":
 					body[f.Name] = "ok"
+				case "int":
+					body[f.Name] = responseSuccessCode
+				case "bool":
+					body[f.Name] = true
 				case "interface":
 					body[f.Name] = resp.Interface()
 				}
@@ -205,8 +207,17 @@ func (p *GinServer) handleEndpointResult(c *gin.Context,errorResult []reflect.Va
 
 
 //设置 response 模板
-func (p *GinServer) SetResponseFields(fields []HttpResponseFiled) {
+func (p *GinServer) SetResponseFields(fields []HttpResponseFiled) *GinServer{
 	defaultResponseFields = fields
+	return p
+}
+func (p *GinServer) SetResponseSuccessCode(code int) *GinServer{
+	responseSuccessCode = code
+	return p
+}
+func (p *GinServer) SetResponseFailCode(code int) *GinServer{
+	responseFailCode = code
+	return p
 }
 
 func (p *GinServer) bindJson(out interface{}, c *gin.Context) error {
@@ -229,12 +240,11 @@ func (p *GinServer) dieFail(err error, c *gin.Context) {
 		case "string":
 			body[item.Name] = message
 		case "int":
-			body[item.Name] = http.StatusBadRequest
+			body[item.Name] = responseFailCode
 		case "bool":
 			body[item.Name] = false
 		}
 	}
-	//c.JSON(http.StatusBadRequest, DefaultFailResponse)
 	c.JSON(http.StatusBadRequest, body)
 }
 
