@@ -30,10 +30,12 @@ func Start(app *infra.InfraApp) {
 		gin.Logger(),
 		gin.Recovery(),
 	)
-	ginServer.SetFailResponseFields([]gin.HttpResponseFiled{
-		{Name:"msg",FieldType: "string"},
+	//设置返回字段模板
+	ginServer.SetResponseFields([]gin.HttpResponseFiled{
+		{Name:"message",FieldType: "string"},
 		{Name:"code",FieldType: "int"},
 		{Name:"success",FieldType: "bool"},
+		{Name:"data",FieldType: "interface"},
 	})
 
 	//注册路由

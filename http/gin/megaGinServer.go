@@ -29,7 +29,7 @@ type HttpResponseFiled struct {
 	FieldType string `json:"type"`
 }
 
-var defaultFailFields = []HttpResponseFiled{
+var defaultResponseFields = []HttpResponseFiled{
 	{Name: "message", FieldType: "string"},
 	{Name: "code", FieldType: "int"},
 	{Name: "success", FieldType: "bool"},
@@ -163,16 +163,8 @@ func (p *GinServer) registerEndPointsV2Imp(funName string, method string, path s
 			parameters[3] = reflect.ValueOf(resp.Interface())
 
 			//执行函数
-			result := m.Func.Call(parameters)
-
-			//返回结果
-			for _, item := range result {
-				if item.Interface() == nil {
-					c.JSON(http.StatusOK, resp.Interface())
-				} else {
-					p.dieFail(item.Interface().(error), c)
-				}
-			}
+			errorResult := m.Func.Call(parameters)
+			p.handleEndpointResult(c,errorResult,resp)
 		}
 		switch method {
 		case "POST":
@@ -186,9 +178,35 @@ func (p *GinServer) registerEndPointsV2Imp(funName string, method string, path s
 	}
 }
 
-//设置Fail response 模板
-func (p *GinServer) SetFailResponseFields(fields []HttpResponseFiled) {
-	defaultFailFields = fields
+//处理函数执行结果
+func (p *GinServer) handleEndpointResult(c *gin.Context,errorResult []reflect.Value,resp reflect.Value)  {
+	//返回结果
+	for _, err := range errorResult {
+		if err.Interface() == nil {
+			var body = make(gin.H)
+			for _, f := range defaultResponseFields {
+				switch f.FieldType {
+				case "int":
+					body[f.Name] = http.StatusBadRequest
+				case "bool":
+					body[f.Name] = true
+				case "string":
+					body[f.Name] = "ok"
+				case "interface":
+					body[f.Name] = resp.Interface()
+				}
+			}
+			c.JSON(http.StatusOK, body)
+		} else {
+			p.dieFail(err.Interface().(error), c)
+		}
+	}
+}
+
+
+//设置 response 模板
+func (p *GinServer) SetResponseFields(fields []HttpResponseFiled) {
+	defaultResponseFields = fields
 }
 
 func (p *GinServer) bindJson(out interface{}, c *gin.Context) error {
@@ -206,7 +224,7 @@ func (p *GinServer) dieFail(err error, c *gin.Context) {
 	sentry.Flush(2 * time.Second)
 	message := err.Error()
 	var body = make(gin.H)
-	for _, item := range defaultFailFields {
+	for _, item := range defaultResponseFields {
 		switch item.FieldType {
 		case "string":
 			body[item.Name] = message
@@ -228,7 +246,14 @@ func healthResponse(context *gin.Context) {
 }
 
 func pongResponse(context *gin.Context) {
-	context.JSON(http.StatusOK, gin.H{
-		"message": "pong!",
-	})
+	var body = make(gin.H)
+	for _, item := range defaultResponseFields {
+		switch item.FieldType {
+		case "string":
+			body[item.Name] = "pong!"
+		case "bool":
+			body[item.Name] = true
+		}
+	}
+	context.JSON(http.StatusOK, body)
 }
