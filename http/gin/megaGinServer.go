@@ -24,6 +24,17 @@ import (
 	"time"
 )
 
+type HttpResponseFiled struct {
+	Name      string `json:"name"`
+	FieldType string `json:"type"`
+}
+
+var defaultFailFields = []HttpResponseFiled{
+	{Name: "message", FieldType: "string"},
+	{Name: "code", FieldType: "int"},
+	{Name: "success", FieldType: "bool"},
+}
+
 type GinServer struct {
 	ginRouter *gin.Engine
 	app       *infra.InfraApp
@@ -35,23 +46,28 @@ func (p *GinServer) SetBasePath(basePath string) {
 }
 
 func (p *GinServer) NewSubscriber(s string, i interface{}, option ...server.SubscriberOption) server.Subscriber {
-	panic("implement me")
+	log.Logger().Infof("NewSubscriber func")
+	return nil
 }
 
 func (p *GinServer) Subscribe(subscriber server.Subscriber) error {
-	panic("implement me")
+	log.Logger().Infof("Subscribe func")
+	return nil
 }
 
 func (p *GinServer) Start() error {
-	panic("implement me")
+	log.Logger().Infof("Start func")
+	return nil
 }
 
 func (p *GinServer) Stop() error {
-	panic("implement me")
+	log.Logger().Infof("Stop func")
+	return nil
 }
 
 func (p *GinServer) String() string {
-	panic("implement me")
+	log.Logger().Infof("String func")
+	return "custom GinServer"
 }
 
 func (p *GinServer) Server() *GinServer {
@@ -77,15 +93,8 @@ func NewMegaGinServer(app *infra.InfraApp, middlewares ...gin.HandlerFunc) *GinS
 	ginRouter.GET("", healthResponse)
 	ginRouter.GET("/actuator", healthResponse)
 	ginRouter.GET("/actuator/health", healthResponse)
-
 	//心跳
-	ginRouter.GET("/ping", func(context *gin.Context) {
-		context.JSON(200, gin.H{
-			"code": 200,
-			"sign": 200,
-			"msg":  "pong!",
-		})
-	})
+	ginRouter.GET("/ping", pongResponse)
 
 	return &GinServer{
 		ginRouter: ginRouter,
@@ -93,19 +102,19 @@ func NewMegaGinServer(app *infra.InfraApp, middlewares ...gin.HandlerFunc) *GinS
 	}
 }
 
-func (a *GinServer) Init(option ...server.Option) error {
+func (p *GinServer) Init(option ...server.Option) error {
 	panic("implement me")
 }
 
-func (a *GinServer) Options() server.Options {
+func (p *GinServer) Options() server.Options {
 	panic("implement me")
 }
 
-func (a *GinServer) Handle(handler server.Handler) error {
+func (p *GinServer) Handle(handler server.Handler) error {
 	return nil
 }
 
-func (a *GinServer) NewHandler(i interface{}, opts ...server.HandlerOption) server.Handler {
+func (p *GinServer) NewHandler(i interface{}, opts ...server.HandlerOption) server.Handler {
 	//i为处理service
 	//option包含
 	options := server.HandlerOptions{
@@ -121,7 +130,7 @@ func (a *GinServer) NewHandler(i interface{}, opts ...server.HandlerOption) serv
 		funName := strings.Split(k, ".")[1]
 		method := v["method"]
 		path := v["path"]
-		a.registerEndPointsV2Imp(funName, method, path, i)
+		p.registerEndPointsV2Imp(funName, method, path, i)
 
 	}
 	return nil
@@ -143,7 +152,7 @@ func (p *GinServer) registerEndPointsV2Imp(funName string, method string, path s
 			//入参序列化
 			reqPtr := m.Type.In(2)
 			var req = reflect.New(reqPtr.Elem())
-			if erro := bindJson(req.Interface(), c); erro != nil {
+			if erro := p.bindJson(req.Interface(), c); erro != nil {
 				return
 			}
 			parameters[2] = reflect.ValueOf(req.Interface())
@@ -161,7 +170,7 @@ func (p *GinServer) registerEndPointsV2Imp(funName string, method string, path s
 				if item.Interface() == nil {
 					c.JSON(http.StatusOK, resp.Interface())
 				} else {
-					dieFail(item.Interface().(error), c)
+					p.dieFail(item.Interface().(error), c)
 				}
 			}
 		}
@@ -177,37 +186,49 @@ func (p *GinServer) registerEndPointsV2Imp(funName string, method string, path s
 	}
 }
 
-func bindJson(out interface{}, c *gin.Context) error {
+//设置Fail response 模板
+func (p *GinServer) SetFailResponseFields(fields []HttpResponseFiled) {
+	defaultFailFields = fields
+}
+
+func (p *GinServer) bindJson(out interface{}, c *gin.Context) error {
 	err := c.ShouldBindJSON(out)
 	if err != nil {
 		log.Logger().Error("request err:", err)
-		dieFail(err, c)
+		p.dieFail(err, c)
 		return err
 	}
 	return nil
 }
 
-type HttpResponse struct {
-	Code   int32  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
-	Sign   int32  `protobuf:"varint,2,opt,name=sign,proto3" json:"sign,omitempty"`
-	Msg    string `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
-	Result string `protobuf:"bytes,4,opt,name=msg,proto3" json:"result,omitempty"`
-}
-
-func dieFail(err error, c *gin.Context) {
+func (p *GinServer) dieFail(err error, c *gin.Context) {
 	sentry.CaptureException(err)
 	sentry.Flush(2 * time.Second)
-	c.JSON(http.StatusBadRequest, HttpResponse{
-		Code:   400,
-		Sign:   400,
-		Msg:    err.Error(),
-		Result: err.Error(),
-	})
+	message := err.Error()
+	var body = make(gin.H)
+	for _, item := range defaultFailFields {
+		switch item.FieldType {
+		case "string":
+			body[item.Name] = message
+		case "int":
+			body[item.Name] = http.StatusBadRequest
+		case "bool":
+			body[item.Name] = false
+		}
+	}
+	//c.JSON(http.StatusBadRequest, DefaultFailResponse)
+	c.JSON(http.StatusBadRequest, body)
 }
 
 //健康检查响应函数
 func healthResponse(context *gin.Context) {
-	context.JSON(200, gin.H{
+	context.JSON(http.StatusOK, gin.H{
 		"message": "health!",
+	})
+}
+
+func pongResponse(context *gin.Context) {
+	context.JSON(http.StatusOK, gin.H{
+		"message": "pong!",
 	})
 }

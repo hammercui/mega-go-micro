@@ -16,7 +16,6 @@ import (
 	infra "github.com/hammercui/mega-go-micro/v2"
 	"github.com/hammercui/mega-go-micro/v2/conf"
 	"github.com/hammercui/mega-go-micro/v2/demo/handler"
-	"github.com/hammercui/mega-go-micro/v2/demo/http/middleware"
 	pbGo "github.com/hammercui/mega-go-micro/v2/demo/proto/pbGo"
 	"github.com/hammercui/mega-go-micro/v2/http/gin"
 	"github.com/hammercui/mega-go-micro/v2/log"
@@ -28,9 +27,14 @@ import (
 
 func Start(app *infra.InfraApp) {
 	ginServer := gin.NewMegaGinServer(app,
-		middleware.Logger(),
-		middleware.Recovery(),
+		gin.Logger(),
+		gin.Recovery(),
 	)
+	ginServer.SetFailResponseFields([]gin.HttpResponseFiled{
+		{Name:"msg",FieldType: "string"},
+		{Name:"code",FieldType: "int"},
+		{Name:"success",FieldType: "bool"},
+	})
 
 	//注册路由
 	registerRouter(app, ginServer)

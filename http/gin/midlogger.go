@@ -6,17 +6,17 @@
 @File : midlogger
 @Company: Sdbean
 */
-package middleware
+package gin
 
 import (
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/hammercui/mega-go-micro/v2/log"
 	"io/ioutil"
 	"regexp"
 	"strings"
 	"time"
-	"github.com/hammercui/mega-go-micro/v2/log"
 )
 
 var (

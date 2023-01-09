@@ -6,7 +6,7 @@
 @File : gorecovery
 @Company: Sdbean
 */
-package middleware
+package gin
 
 import (
 	"bytes"
