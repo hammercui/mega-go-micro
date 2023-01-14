@@ -37,10 +37,13 @@ var defaultResponseFields = []HttpResponseFiled{
 var responseSuccessCode = http.StatusOK
 var responseFailCode    = http.StatusBadRequest
 
+//Server is a simple micro server abstraction
+//GinServer 实现Server接口
 type GinServer struct {
 	ginRouter *gin.Engine
 	app       *infra.InfraApp
 	basePath  string
+	options server.Options
 }
 
 func (p *GinServer) SetBasePath(basePath string) {
@@ -70,6 +73,14 @@ func (p *GinServer) Stop() error {
 func (p *GinServer) String() string {
 	log.Logger().Infof("String func")
 	return "custom GinServer"
+}
+func (p *GinServer) Init(option ...server.Option) error {
+	log.Logger().Infof("GinServer Init")
+	return nil
+}
+
+func (p *GinServer) Options() server.Options {
+	return p.options
 }
 
 func (p *GinServer) Server() *GinServer {
@@ -104,13 +115,7 @@ func NewMegaGinServer(app *infra.InfraApp, middlewares ...gin.HandlerFunc) *GinS
 	}
 }
 
-func (p *GinServer) Init(option ...server.Option) error {
-	panic("implement me")
-}
 
-func (p *GinServer) Options() server.Options {
-	panic("implement me")
-}
 
 func (p *GinServer) Handle(handler server.Handler) error {
 	return nil
