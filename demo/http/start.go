@@ -13,7 +13,7 @@ package http
 
 import (
 	"fmt"
-	infra "github.com/hammercui/mega-go-micro/v2"
+	"github.com/hammercui/mega-go-micro/v2/base"
 	"github.com/hammercui/mega-go-micro/v2/conf"
 	"github.com/hammercui/mega-go-micro/v2/demo/handler"
 	pbGo "github.com/hammercui/mega-go-micro/v2/demo/proto/pbGo"
@@ -25,7 +25,7 @@ import (
 	"time"
 )
 
-func Start(app *infra.InfraApp) {
+func Start(app *base.InfraApp) {
 	ginServer := gin.NewMegaGinServer(app,
 		gin.Logger(),
 		gin.Recovery(),
@@ -83,7 +83,7 @@ func Start(app *infra.InfraApp) {
 	}
 }
 
-func registerRouter(app *infra.InfraApp, ginServer *gin.GinServer) {
+func registerRouter(app *base.InfraApp, ginServer *gin.GinServer) {
 	//链路追踪
 	if app.Tracer != nil {
 		//ginRouter.Use(hammerHttp.SkyWalking(ginRouter, trace))
@@ -91,5 +91,5 @@ func registerRouter(app *infra.InfraApp, ginServer *gin.GinServer) {
 	}
 
 	//demo
-	pbGo.RegisterDemoHandler(ginServer.Server(), handler.NewDemoService(app))
+	pbGo.RegisterDemoHandler(ginServer.Server(), handler.NewDemoService())
 }

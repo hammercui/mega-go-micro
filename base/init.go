@@ -1,4 +1,4 @@
-package infra
+package base
 
 import (
 	infraBroker "github.com/hammercui/mega-go-micro/v2/broker"
@@ -13,10 +13,6 @@ import (
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"
 )
-
-/**
-infraApp 默认方式生成
-*/
 
 //初始化app
 func InitApp() *InfraApp {

@@ -1,4 +1,4 @@
-package infra
+package base
 
 import (
 	"encoding/json"
@@ -10,19 +10,21 @@ import (
 )
 
 type RedisService struct {
-	base *BaseService
+	BaseService
 }
 
-func NewRedisService(app *InfraApp) *RedisService {
+func NewRedisService() *RedisService {
 	return &RedisService{
-		base: NewBaseService(app),
+		BaseService{
+			app: App(),
+		},
 	}
 }
 
 
 //统一查询redis hash
 func (p *RedisService) HGetStrRedis(redisName string,hashName string, key string) (string,error) {
-	client :=  p.base.App.RedisByName(redisName)
+	client :=  p.app.RedisByName(redisName)
 	if client == nil {
 		return "",errors.New(fmt.Sprintf("redis[%s] is nil",redisName))
 	}
@@ -56,7 +58,7 @@ func (p *RedisService) HGet(hashName string, key string, retModal interface{}) e
 
 //统一存储redis hash
 func (p *RedisService) HSetRedis(redisName string,hashName string, key string, saveModal interface{}) error {
-	client :=  p.base.App.RedisByName(redisName)
+	client :=  p.app.RedisByName(redisName)
 	if client == nil {
 		return errors.New(fmt.Sprintf("redis[%s] is nil",redisName))
 	}
@@ -85,7 +87,7 @@ func (p *RedisService) HSet(hashName string, key string, saveModal interface{}) 
 
 //统一删除redis hash
 func (p *RedisService) HDelRedis(redisName string,hashName string, key string) error {
-	client :=  p.base.App.RedisByName(redisName)
+	client :=  p.app.RedisByName(redisName)
 	if client == nil {
 		return errors.New(fmt.Sprintf("redis[%s] is nil",redisName))
 	}
@@ -124,7 +126,7 @@ func (p *RedisService) GetStr(key string) (string,error) {
 	return p.GetStrRedis(DEFAULT,key)
 }
 func (p *RedisService) GetStrRedis(redisName string,key string) (string,error) {
-	client :=  p.base.App.RedisByName(redisName)
+	client :=  p.app.RedisByName(redisName)
 	if client == nil {
 		return "",errors.New(fmt.Sprintf("redis[%s] is nil",redisName))
 	}
@@ -141,7 +143,7 @@ func (p *RedisService) Set(key string, saveModal interface{}) error {
 	return p.SetRedis(DEFAULT,key,saveModal)
 }
 func (p *RedisService) SetRedis(redisName string,key string, saveModal interface{}) error {
-	client :=  p.base.App.RedisByName(redisName)
+	client :=  p.app.RedisByName(redisName)
 	if client == nil {
 		return errors.New(fmt.Sprintf("redis[%s] is nil",redisName))
 	}
@@ -170,7 +172,7 @@ func (p *RedisService) RPop(key string, retModal interface{}) error {
 	return p.RPopRedis(DEFAULT,key,retModal)
 }
 func (p *RedisService) RPopRedis(redisName string,key string, retModal interface{}) error {
-	client :=  p.base.App.RedisByName(redisName)
+	client :=  p.app.RedisByName(redisName)
 	if client == nil {
 		return errors.New(fmt.Sprintf("redis[%s] is nil",redisName))
 	}
@@ -198,7 +200,7 @@ func (p *RedisService) LPush(key string, inModel interface{}) error{
 	return p.LPushRedis(DEFAULT,key,inModel)
 }
 func (p *RedisService) LPushRedis(redisName string,key string, inModel interface{}) error {
-	client :=  p.base.App.RedisByName(redisName)
+	client :=  p.app.RedisByName(redisName)
 	if client == nil {
 		return errors.New(fmt.Sprintf("redis[%s] is nil",redisName))
 	}

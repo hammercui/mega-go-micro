@@ -1,7 +1,6 @@
 # mega-go-micro
 >基于go-micro v2封装的golang微服务框架,使用gin作为http路由功能
 
-
 ## 基础组件服务
 >提供mysql,redis,mongo.consul,kafka等服务的连接池
 >提供工具函数
@@ -17,6 +16,8 @@ support flag
 * -nodeId `eg: 1`
 * -ip: `eg: 182.168.1.10`
 
+## How to use
+
 ### FAQ
 
 1 etcd err:
@@ -25,6 +26,8 @@ go mod 使用gprc 1.26.0
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 ```
 ## 更新日志
+### v2.1.0路线图
+* [ ] infraApp变更为facade模式
 ### v2.0.0路线图
 * [x] 重构configs配置系统,修改为根据env读取配置文件,比如application.yml,application-dev.yml
 * [x] mysql多数据库支持

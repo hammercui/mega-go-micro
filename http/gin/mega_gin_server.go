@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
-	infra "github.com/hammercui/mega-go-micro/v2"
+	"github.com/hammercui/mega-go-micro/v2/base"
 	"github.com/hammercui/mega-go-micro/v2/log"
 	"github.com/micro/go-micro/v2/server"
 	"net/http"
@@ -24,12 +24,8 @@ import (
 	"time"
 )
 
-type HttpResponseFiled struct {
-	Name      string `json:"name"`
-	FieldType string `json:"type"`
-}
 
-var defaultResponseFields = []HttpResponseFiled{
+var defaultResponseFields = []*HttpResponseFiled{
 	{Name: "message", FieldType: "string"},
 	{Name: "code", FieldType: "int"},
 	{Name: "success", FieldType: "bool"},
@@ -41,7 +37,7 @@ var responseFailCode    = http.StatusBadRequest
 //GinServer 实现Server接口
 type GinServer struct {
 	ginRouter *gin.Engine
-	app       *infra.InfraApp
+	app       *base.InfraApp
 	basePath  string
 	options server.Options
 }
@@ -92,7 +88,7 @@ func (p *GinServer) Gin() *gin.Engine {
 }
 
 //实例化megaGinServer
-func NewMegaGinServer(app *infra.InfraApp, middlewares ...gin.HandlerFunc) *GinServer {
+func NewMegaGinServer(app *base.InfraApp, middlewares ...gin.HandlerFunc) *GinServer {
 	gin.DisableConsoleColor()
 	//gin设置模式
 	gin.SetMode(gin.DebugMode)
@@ -212,7 +208,7 @@ func (p *GinServer) handleEndpointResult(c *gin.Context,errorResult []reflect.Va
 
 
 //设置 response 模板
-func (p *GinServer) SetResponseFields(fields []HttpResponseFiled) *GinServer{
+func (p *GinServer) SetResponseFields(fields []*HttpResponseFiled) *GinServer{
 	defaultResponseFields = fields
 	return p
 }

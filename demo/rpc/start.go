@@ -13,7 +13,7 @@ package rpc
 
 import (
 	"fmt"
-	infra "github.com/hammercui/mega-go-micro/v2"
+	"github.com/hammercui/mega-go-micro/v2/base"
 	"github.com/hammercui/mega-go-micro/v2/conf"
 	"github.com/hammercui/mega-go-micro/v2/demo/handler"
 	pbGo "github.com/hammercui/mega-go-micro/v2/demo/proto/pbGo"
@@ -22,7 +22,7 @@ import (
 	"strconv"
 )
 
-func Start(app *infra.InfraApp) {
+func Start(app *base.InfraApp) {
 	appConf := conf.GetConf().App
 	rpcName := fmt.Sprintf("%s-%s-rpc-%s", appConf.Group, appConf.Name, appConf.Env)
 	// New Service
@@ -51,7 +51,7 @@ func Start(app *infra.InfraApp) {
 	}
 }
 
-func registerHandler(ser server.Server, app *infra.InfraApp) {
+func registerHandler(ser server.Server, app *base.InfraApp) {
 	//demo
 	pbGo.RegisterDemoHandler(ser, handler.NewDemoService(app))
 }

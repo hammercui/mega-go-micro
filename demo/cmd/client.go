@@ -13,13 +13,13 @@ package main
 
 import (
 	"fmt"
-	infra "github.com/hammercui/mega-go-micro/v2"
+	"github.com/hammercui/mega-go-micro/v2/base"
 	"github.com/micro/go-micro/v2/config"
 )
 
 //如何通过selector发现并选择服务
 func main() {
-	app := infra.InitApp()
+	app := base.InitApp()
 	next, err := app.Selector.Select("test")
 	if err != nil {
 		return

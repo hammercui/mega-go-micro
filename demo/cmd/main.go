@@ -12,7 +12,7 @@
 package main
 
 import (
-	infra "github.com/hammercui/mega-go-micro/v2"
+	"github.com/hammercui/mega-go-micro/v2/base"
 	"github.com/hammercui/mega-go-micro/v2/demo/http"
 )
 
@@ -22,7 +22,7 @@ func main() {
 	//flag.Parse()
 	//fmt.Println("当前环境为：",env)
 
-	app := infra.InitApp()
+	app := base.InitApp()
 	// 启动http服务
 	http.Start(app)
 	// 启动rpc

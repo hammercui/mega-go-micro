@@ -6,15 +6,15 @@
 @File : BaseService
 @Company: Sdbean
 */
-package infra
+package base
 
 type BaseService struct {
-	App *InfraApp
+	app *InfraApp
 	id int
 }
 
-func NewBaseService(app *InfraApp) *BaseService {
-	return &BaseService{App: app}
+func NewBaseService() BaseService {
+	return BaseService{app: App()}
 }
 
 type AtyAutoConf struct {
