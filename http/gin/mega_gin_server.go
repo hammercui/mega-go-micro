@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
-	infra "github.com/hammercui/mega-go-micro/v2"
 	"github.com/hammercui/mega-go-micro/v2/log"
 	"github.com/micro/go-micro/v2/server"
 	"net/http"
@@ -24,26 +23,13 @@ import (
 	"time"
 )
 
-type HttpResponseFiled struct {
-	Name      string `json:"name"`
-	FieldType string `json:"type"`
-}
-
-var defaultResponseFields = []HttpResponseFiled{
-	{Name: "message", FieldType: "string"},
-	{Name: "code", FieldType: "int"},
-	{Name: "success", FieldType: "bool"},
-}
-var responseSuccessCode = http.StatusOK
-var responseFailCode    = http.StatusBadRequest
-
 //Server is a simple micro server abstraction
 //GinServer 实现Server接口
 type GinServer struct {
 	ginRouter *gin.Engine
-	app       *infra.InfraApp
 	basePath  string
 	options server.Options
+	megaGinOptions *megaGinServerOptions
 }
 
 func (p *GinServer) SetBasePath(basePath string) {
@@ -90,32 +76,6 @@ func (p *GinServer) Server() *GinServer {
 func (p *GinServer) Gin() *gin.Engine {
 	return p.ginRouter
 }
-
-//实例化megaGinServer
-func NewMegaGinServer(app *infra.InfraApp, middlewares ...gin.HandlerFunc) *GinServer {
-	gin.DisableConsoleColor()
-	//gin设置模式
-	gin.SetMode(gin.DebugMode)
-	//初始化路由
-	ginRouter := gin.New()
-	//注册通用中间件
-	for _, item := range middlewares {
-		ginRouter.Use(item)
-	}
-	//健康检查
-	ginRouter.GET("", healthResponse)
-	ginRouter.GET("/actuator", healthResponse)
-	ginRouter.GET("/actuator/health", healthResponse)
-	//心跳
-	ginRouter.GET("/ping", pongResponse)
-
-	return &GinServer{
-		ginRouter: ginRouter,
-		app:       app,
-	}
-}
-
-
 
 func (p *GinServer) Handle(handler server.Handler) error {
 	return nil
@@ -191,12 +151,12 @@ func (p *GinServer) handleEndpointResult(c *gin.Context,errorResult []reflect.Va
 	for _, err := range errorResult {
 		if err.Interface() == nil {
 			var body = make(gin.H)
-			for _, f := range defaultResponseFields {
+			for _, f := range p.megaGinOptions.responseFields {
 				switch f.FieldType {
 				case "string":
 					body[f.Name] = "ok"
 				case "int":
-					body[f.Name] = responseSuccessCode
+					body[f.Name] = p.megaGinOptions.responseSuccessCode
 				case "bool":
 					body[f.Name] = true
 				case "interface":
@@ -208,21 +168,6 @@ func (p *GinServer) handleEndpointResult(c *gin.Context,errorResult []reflect.Va
 			p.dieFail(err.Interface().(error), c)
 		}
 	}
-}
-
-
-//设置 response 模板
-func (p *GinServer) SetResponseFields(fields []HttpResponseFiled) *GinServer{
-	defaultResponseFields = fields
-	return p
-}
-func (p *GinServer) SetResponseSuccessCode(code int) *GinServer{
-	responseSuccessCode = code
-	return p
-}
-func (p *GinServer) SetResponseFailCode(code int) *GinServer{
-	responseFailCode = code
-	return p
 }
 
 func (p *GinServer) bindJson(out interface{}, c *gin.Context) error {
@@ -240,12 +185,12 @@ func (p *GinServer) dieFail(err error, c *gin.Context) {
 	sentry.Flush(2 * time.Second)
 	message := err.Error()
 	var body = make(gin.H)
-	for _, item := range defaultResponseFields {
+	for _, item := range p.megaGinOptions.responseFields {
 		switch item.FieldType {
 		case "string":
 			body[item.Name] = message
 		case "int":
-			body[item.Name] = responseFailCode
+			body[item.Name] = p.megaGinOptions.responseFailCode
 		case "bool":
 			body[item.Name] = false
 		}
@@ -254,15 +199,15 @@ func (p *GinServer) dieFail(err error, c *gin.Context) {
 }
 
 //健康检查响应函数
-func healthResponse(context *gin.Context) {
+func (p *GinServer) healthResponse(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{
 		"message": "health!",
 	})
 }
 
-func pongResponse(context *gin.Context) {
+func (p *GinServer) pongResponse(context *gin.Context) {
 	var body = make(gin.H)
-	for _, item := range defaultResponseFields {
+	for _, item := range p.megaGinOptions.responseFields {
 		switch item.FieldType {
 		case "string":
 			body[item.Name] = "pong!"
@@ -271,4 +216,35 @@ func pongResponse(context *gin.Context) {
 		}
 	}
 	context.JSON(http.StatusOK, body)
+}
+
+func (p *GinServer) Apply(options ...MegaGinServerOption) *GinServer {
+	for _, opt := range options{
+		opt.apply(p.megaGinOptions)
+	}
+	return p
+}
+//实例化megaGinServer
+func NewMegaGinServer(middlewares ...gin.HandlerFunc) *GinServer {
+	gin.DisableConsoleColor()
+	//gin设置模式
+	gin.SetMode(gin.DebugMode)
+	//初始化路由
+	ginRouter := gin.New()
+	//注册通用中间件
+	for _, item := range middlewares {
+		ginRouter.Use(item)
+	}
+	ginServer := &GinServer{
+		ginRouter: ginRouter,
+		megaGinOptions: defaultMegaGinServerOptions(),
+	}
+	//健康检查
+	ginRouter.GET("", ginServer.healthResponse)
+	ginRouter.GET("/actuator", ginServer.healthResponse)
+	ginRouter.GET("/actuator/health", ginServer.healthResponse)
+	//心跳
+	ginRouter.GET("/ping", ginServer.pongResponse)
+
+	return ginServer
 }

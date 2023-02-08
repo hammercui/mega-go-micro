@@ -13,7 +13,7 @@ package test
 
 import (
 	"fmt"
-	infra "github.com/hammercui/mega-go-micro/v2"
+	"github.com/hammercui/mega-go-micro/v2/base"
 	pbGo "github.com/hammercui/mega-go-micro/v2/demo/proto/pbGo"
 	"github.com/hammercui/mega-go-micro/v2/tool"
 	"testing"
@@ -21,12 +21,12 @@ import (
 )
 
 func TestStartHttp(t *testing.T) {
-	app := infra.InitApp()
+	app := base.InitApp()
 	fmt.Println(app.HttpRunning)
 }
 
 func Test_tool_PostJson(t *testing.T) {
-	app := infra.InitApp()
+	app := base.InitApp()
 	fmt.Println(app.HttpRunning)
 	var req = pbGo.CommReq{
 		UserNo: "100",

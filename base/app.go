@@ -6,7 +6,7 @@
 @File : infraApp
 @Company: Sdbean
 */
-package infra
+package base
 
 import (
 	"github.com/go-redis/redis"
@@ -30,28 +30,25 @@ type InfraApp struct {
 	Selector    selector.Selector        //服务发现
 	Broker      broker.Broker            //消息订阅与发布
 	ConfWatch   *watch.ConfWatch         //配置中心
-	//todo mongo连接
-
 	Tracer   *go2sky.Tracer           //链路追踪
 	MySqlMap map[string]*mysql.Client //mysql集合
 	MongoMap map[string]*mongo.Client //mongo集合
-	//redis客户端map
-	//redisPoolMap map[string]*infraRedis.RedisPool
-	//mysql只读连接池
-	//readOnlyDBPoolMap map[string]*mysql.DBPool
-	//mysql读写连接池
-	//readWriteDBPoolMap map[string]*mysql.DBPool
 }
 
 //instance
 var app *InfraApp
+func App() *InfraApp{
+	return app
+}
 
+//return default db connect instance
 func (p *InfraApp) WriteDB() *gorm.DB {
 	if val, ok := p.MySqlMap[DEFAULT];ok{
 		return val.Master
 	}
 	return nil
 }
+//return default readonly db connect instance
 func (p *InfraApp) ReadDB() *gorm.DB {
 	if val, ok := p.MySqlMap[DEFAULT];ok{
 		if val.Slave != nil{
@@ -62,6 +59,7 @@ func (p *InfraApp) ReadDB() *gorm.DB {
 	return nil
 }
 
+//return db connect instance by name
 func (p *InfraApp) WriteDByName(name string) *gorm.DB {
 	if val, ok := p.MySqlMap[name];ok{
 		return val.Master
@@ -78,6 +76,7 @@ func (p *InfraApp) ReadDByName(name string) *gorm.DB {
 	return nil
 }
 
+//return default mongo connect instance by name
 func (p *InfraApp) Mongo() *mongo.Client{
 	if val, ok := p.MongoMap[DEFAULT];ok{
 		return val

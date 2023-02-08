@@ -1,4 +1,4 @@
-package infra
+package base
 
 import (
 	"database/sql"
@@ -16,8 +16,8 @@ type BaseDao struct {
 	app *InfraApp
 }
 
-func NewBaseDao(app *InfraApp) *BaseDao {
-	return &BaseDao{app: app}
+func NewBaseDao() *BaseDao {
+	return &BaseDao{app: App()}
 }
 
 //update delete by default db

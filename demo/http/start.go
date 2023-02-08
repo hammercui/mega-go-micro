@@ -13,7 +13,7 @@ package http
 
 import (
 	"fmt"
-	infra "github.com/hammercui/mega-go-micro/v2"
+	"github.com/hammercui/mega-go-micro/v2/base"
 	"github.com/hammercui/mega-go-micro/v2/conf"
 	"github.com/hammercui/mega-go-micro/v2/demo/handler"
 	pbGo "github.com/hammercui/mega-go-micro/v2/demo/proto/pbGo"
@@ -25,19 +25,20 @@ import (
 	"time"
 )
 
-func Start(app *infra.InfraApp) {
-	ginServer := gin.NewMegaGinServer(app,
+func Start(app *base.InfraApp) {
+	ginServer := gin.NewMegaGinServer(
 		gin.Logger(),
 		gin.Recovery(),
-	).SetResponseFields([]gin.HttpResponseFiled{
-		{Name:"message",FieldType: "string"},
-		{Name:"code",FieldType: "int"},
-		{Name:"success",FieldType: "bool"},
-		{Name:"data",FieldType: "interface"},
-	}).
-		SetResponseSuccessCode(200).
-		SetResponseFailCode(400) //设置返回字段模板
-
+	).Apply(
+		gin.WithResponseFields([]*gin.HttpResponseFiled{
+			{Name: "message", FieldType: "string"},
+			{Name: "code", FieldType: "int"},
+			{Name: "success", FieldType: "bool"},
+			{Name: "data", FieldType: "interface"},
+		}),
+		gin.WithResponseSuccessCode(200),
+		gin.WithResponseFailCode(400), //设置返回字段模板
+	)
 
 	//注册路由
 	registerRouter(app, ginServer)
@@ -83,7 +84,7 @@ func Start(app *infra.InfraApp) {
 	}
 }
 
-func registerRouter(app *infra.InfraApp, ginServer *gin.GinServer) {
+func registerRouter(app *base.InfraApp, ginServer *gin.GinServer) {
 	//链路追踪
 	if app.Tracer != nil {
 		//ginRouter.Use(hammerHttp.SkyWalking(ginRouter, trace))
@@ -91,5 +92,5 @@ func registerRouter(app *infra.InfraApp, ginServer *gin.GinServer) {
 	}
 
 	//demo
-	pbGo.RegisterDemoHandler(ginServer.Server(), handler.NewDemoService(app))
+	pbGo.RegisterDemoHandler(ginServer.Server(), handler.NewDemoService())
 }

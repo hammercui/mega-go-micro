@@ -6,13 +6,14 @@
 @File : BaseController
 @Company: Sdbean
 */
-package infra
+package base
 
 //controller基础
 type BaseController struct {
-	App *InfraApp
+	app *InfraApp
 }
 
-func NewBaseController(app *InfraApp) *BaseController {
-	return &BaseController{App: app}
+func NewBaseController() *BaseController {
+	return &BaseController{app: App()}
 }
+
