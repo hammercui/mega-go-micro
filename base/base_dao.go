@@ -16,8 +16,8 @@ type BaseDao struct {
 	app *InfraApp
 }
 
-func NewBaseDao() *BaseDao {
-	return &BaseDao{app: App()}
+func NewBaseDao() BaseDao {
+	return BaseDao{app: App()}
 }
 
 //update delete by default db

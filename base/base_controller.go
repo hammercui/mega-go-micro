@@ -13,7 +13,7 @@ type BaseController struct {
 	app *InfraApp
 }
 
-func NewBaseController() *BaseController {
-	return &BaseController{app: App()}
+func NewBaseController() BaseController {
+	return BaseController{app: App()}
 }
 
