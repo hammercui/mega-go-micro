@@ -61,7 +61,7 @@ func InitLog() {
 
 	//打印配置
 	logrusSingle = _logrusEntry
-	logrusSingle.Infof("-------log init console-------")
+	logrusSingle.Infof("-------log init start-------")
 	logrusSingle.Infof("env: %s", _conf.App.Env)
 	logrusSingle.Infof("nodeId: %s", _conf.App.NodeId)
 	logrusSingle.Infof("ip: %s", _conf.App.IP)
@@ -82,7 +82,7 @@ func formLogLevel(level string) logrus.Level {
 	}
 }
 
-//获得日志实例
+// 获得日志实例
 func Logger() *logrus.Entry {
 	return logrusSingle
 }

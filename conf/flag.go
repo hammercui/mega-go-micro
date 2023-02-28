@@ -7,4 +7,5 @@ type FlagConf struct {
 	env     string
 	nodeId  string
 	ip      string
+	port    int
 }

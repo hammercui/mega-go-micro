@@ -19,8 +19,8 @@ import (
 	"github.com/hammercui/go2sky"
 	"github.com/hammercui/go2sky/propagation"
 	v3 "github.com/hammercui/go2sky/reporter/grpc/language-agent"
-	"github.com/hammercui/mega-go-micro/conf"
-	"github.com/hammercui/mega-go-micro/log"
+	"github.com/hammercui/mega-go-micro/v2/conf"
+	"github.com/hammercui/mega-go-micro/v2/log"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -44,18 +44,18 @@ type RequestOptions struct {
 	ReqSign string
 }
 
-//默认配置
+// 默认配置
 var DefaultRequestOptions = &RequestOptions{
 	//默认超时10秒
 	Timeout: 10 * time.Second,
 }
 
-//生成http请求签名
+// 生成http请求签名
 func genReqSign() string {
 	timeStamp := time.Now().UnixNano() / 1e6
 	nodeIdStr := "1"
-	if conf.GetConf() != nil && conf.GetConf().AppConf != nil {
-		nodeIdStr = conf.GetConf().AppConf.NodeId
+	if conf.GetConf() != nil && conf.GetConf().App != nil {
+		nodeIdStr = conf.GetConf().App.NodeId
 	}
 	nodeId, _ := strconv.Atoi(nodeIdStr)
 	offset := int64(nodeId) * int64(1000000000000)
@@ -67,12 +67,12 @@ func GenReqSign() string {
 	return genReqSign()
 }
 
-//使用默认配置的json请求
+// 使用默认配置的json请求
 func PostJson(url string, v interface{}, out interface{}) error {
 	return PostJsonWithOpt(url, v, out, DefaultRequestOptions)
 }
 
-//自定义配置的json请求
+// 自定义配置的json请求
 func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOptions) error {
 	reqSign := opts.ReqSign
 	if len(reqSign) == 0 {
@@ -144,7 +144,7 @@ func PostJsonWithOpt(url string, v interface{}, out interface{}, opts *RequestOp
 	return nil
 }
 
-//http request 请求注入链路追踪
+// http request 请求注入链路追踪
 func InjectRequestTrace(opts *RequestOptions, request *http.Request) {
 	//处理span探针
 	if opts.SkyWalking != nil && opts.GinCtx != nil {
@@ -167,7 +167,7 @@ func InjectRequestTrace(opts *RequestOptions, request *http.Request) {
 	}
 }
 
-//请求表单
+// 请求表单
 func PostForm(urlStr string, data url.Values, out interface{}) error {
 	//默认值
 	timeout := 10 * time.Second

@@ -18,7 +18,7 @@ import (
 func init() {}
 
 func InitRedis() map[string]*redis.Client {
-	log.Logger().Infof("-------redis init console-------")
+	log.Logger().Infof("-------redis init start-------")
 	_map := make(map[string]*redis.Client)
 	if conf.GetConf().RedisMap == nil || len(conf.GetConf().RedisMap) == 0 {
 		log.Logger().Infof("redis not config")
@@ -26,10 +26,10 @@ func InitRedis() map[string]*redis.Client {
 	}
 	for k, v := range conf.GetConf().RedisMap {
 		if v.Enable {
-			log.Logger().Infof("redis[%s] create",k)
+			log.Logger().Infof("redis[%s] create", k)
 			_map[k] = getClient(v)
-		}else{
-			log.Logger().Infof("redis[%s] disable",k)
+		} else {
+			log.Logger().Infof("redis[%s] disable", k)
 		}
 	}
 	return _map
@@ -43,7 +43,7 @@ func getClient(redisConf *conf.RedisConf) *redis.Client {
 	}
 }
 
-//获得直连redis
+// 获得直连redis
 func getClientByDirect(redisConf *conf.RedisConf) *redis.Client {
 	opts := &redis.Options{
 		Addr: redisConf.Addr,
@@ -63,7 +63,7 @@ func getClientByDirect(redisConf *conf.RedisConf) *redis.Client {
 	return redisClient
 }
 
-//获得sentinel redis
+// 获得sentinel redis
 func getClientBySentinel(redisConf *conf.RedisConf) *redis.Client {
 	//connect redis
 	flOpts := &redis.FailoverOptions{

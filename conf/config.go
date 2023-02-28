@@ -26,7 +26,7 @@ const (
 	AppEnv_prod  AppEnv = "prod"
 )
 
-//app运行时的一些参数
+// app运行时的一些参数
 type AppRuntimeInfo struct {
 	Version string
 }
@@ -43,7 +43,7 @@ type Config struct {
 	Tracer       *TracerConf                    `json:"tracer" yaml:"tracer"`
 }
 
-//应用配置
+// 应用配置
 type AppConf struct {
 	Group         string            `json:"group"         yaml:"group"`
 	Name          string            `json:"name"         yaml:"name"`
@@ -58,7 +58,7 @@ type AppConf struct {
 	Custom        map[string]string `json:"custom"         yaml:"custom"`
 }
 
-//日志配置
+// 日志配置
 type LogConf struct {
 	KafkaHookEnable bool     `json:"kafkaHookEnable"      yaml:"kafkaHookEnable"`
 	KafkaHookAddrs  []string `json:"kafkaHookAddrs"      yaml:"kafkaHookAddrs"`
@@ -68,20 +68,20 @@ type LogConf struct {
 	MaxDay          int      `json:"maxDay" yaml:"maxDay"`
 }
 
-//配置中心
+// 配置中心
 type ConfigCenter struct {
 	ConsulAddrs []string `json:"consulAddrs" yaml:"consulAddrs"`
 	ConfKey     string   `json:"confKey" yaml:"confKey"`
 	Enable      bool     `json:"enable" yaml:"enable" `
 }
 
-//consul配置
+// consul配置
 type ConsulConf struct {
 	Addrs   []string `json:"addrs" yaml:"addrs"`
 	ConfKey string   `json:"confKey" yaml:"confKey"`
 }
 
-//kafka配置
+// kafka配置
 type KafkaConf struct {
 	Addrs       []string `json:"addrs"     yaml:"addrs"`
 	Topic       string   `json:"topic" yaml:"topic"`
@@ -89,7 +89,7 @@ type KafkaConf struct {
 	DialTimeout int      `json:"dialTimeout" yaml:"dialTimeout" `
 }
 
-//mongo配置
+// mongo配置
 type MongoConf struct {
 	Addr     string `json:"addr"     yaml:"addr"`
 	DbName   string `json:"dbName"   yaml:"dbName"`
@@ -98,7 +98,7 @@ type MongoConf struct {
 	Enable   bool   `json:"enable" yaml:"enable" `
 }
 
-//mysql配置
+// mysql配置
 type MysqlReadWriteConf struct {
 	Master *MysqlConf `json:"master"     yaml:"master"`
 	Slave  *MysqlConf `json:"slave"     yaml:"slave"`
@@ -112,7 +112,7 @@ type MysqlConf struct {
 	DebugInfo     bool `json:"debugInfo" yaml:"debugInfo" `
 }
 
-//redis配置
+// redis配置
 type RedisConf struct {
 	Addr     string             `json:"addr"      yaml:"addr"`
 	Password string             `json:"password"  yaml:"password"`
@@ -142,8 +142,8 @@ type AppOpts struct {
 	IsKafkaLogsOn  bool
 }
 
-//var configPath string
-//var LogoutPath string
+// var configPath string
+// var LogoutPath string
 var conf *Config
 
 var flagConf FlagConf
@@ -157,6 +157,7 @@ func parseFlag() {
 	flag.StringVar(&flagConf.env, "env", "dev", "input app runtime environment,eg:dev,beta,prod")
 	flag.StringVar(&flagConf.nodeId, "nodeId", "1", "input app node id, must be unique")
 	flag.StringVar(&flagConf.ip, "ip", "0.0.0.0", "input app ip, for server discovery")
+	flag.IntVar(&flagConf.port, "port", 8080, "input app port, for server discovery")
 	flag.Parse()
 
 	fmt.Println("-------config init console-------")
@@ -164,7 +165,7 @@ func parseFlag() {
 	//fmt.Println("--: logout path", flagConf.logout)
 }
 
-//初始化配置信息
+// 初始化配置信息
 func InitConfig() {
 	parseFlag()
 	//load default yaml
@@ -204,13 +205,15 @@ func InitConfig() {
 	conf.App.NodeId = flagConf.nodeId
 	//conf.Log.LogoutPath = flagConf.logout
 	conf.App.IP = flagConf.ip
-	fmt.Printf("--: env: %s \n",conf.App.Env)
-	fmt.Printf("--: nodeId: %s \n",conf.App.NodeId)
-	fmt.Printf("--: ip: %s \n",conf.App.IP)
+	conf.App.HttpPort = flagConf.port
+	fmt.Printf("--: env: %s \n", conf.App.Env)
+	fmt.Printf("--: nodeId: %s \n", conf.App.NodeId)
+	fmt.Printf("--: ip: %s \n", conf.App.IP)
+	fmt.Printf("--: port: %d \n", conf.App.HttpPort)
 	fmt.Printf("--: load all configs success \n")
 }
 
-//加载配置文件
+// 加载配置文件
 func loadConfFile(fileName string) (*Config, error) {
 	fullPath := fmt.Sprintf("%s/%s", flagConf.configs, fileName)
 	buf, err := ioutil.ReadFile(fullPath)
@@ -224,7 +227,7 @@ func loadConfFile(fileName string) (*Config, error) {
 	return &out, nil
 }
 
-//获得配置信息
+// 获得配置信息
 func GetConf() *Config {
 	return conf
 }

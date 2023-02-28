@@ -20,21 +20,21 @@ import (
 )
 
 func InitKafkaBroker() broker.Broker {
-	log.Logger().Info("-------kafka init console-------")
+	log.Logger().Info("-------kafka init start-------")
 	_conf := conf.GetConf()
 	if _conf.Kafka == nil {
 		log.Logger().Info("kafka not config")
 		return nil
 	}
 	kafkaConf := _conf.Kafka
-	if !kafkaConf.Enable{
+	if !kafkaConf.Enable {
 		log.Logger().Info("kafka disable")
 		return nil
 	}
 	return newKafka(kafkaConf)
 }
 
-func newKafka(c *conf.KafkaConf)  broker.Broker{
+func newKafka(c *conf.KafkaConf) broker.Broker {
 	sConf := kafka.DefaultBrokerConfig
 	//init连接超时时间2s
 	sConf.Net.DialTimeout = 2 * time.Second

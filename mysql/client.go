@@ -19,7 +19,7 @@ type Client struct {
 }
 
 func InitMysql() map[string]*Client {
-	log.Logger().Infof("-------mysql init console-------")
+	log.Logger().Infof("-------mysql init start-------")
 	_map := make(map[string]*Client)
 	if conf.GetConf().MysqlMap == nil || len(conf.GetConf().MysqlMap) == 0 {
 		log.Logger().Infof("mysql not config")
@@ -29,8 +29,8 @@ func InitMysql() map[string]*Client {
 	for k, v := range conf.GetConf().MysqlMap {
 		if v.Enable {
 			_map[k] = newMysqlClient(k, v)
-		}else{
-			log.Logger().Infof("mysql[%s] disable",k)
+		} else {
+			log.Logger().Infof("mysql[%s] disable", k)
 		}
 	}
 	return _map

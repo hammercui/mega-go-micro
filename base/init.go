@@ -14,13 +14,14 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 )
 
-//初始化app
+// 初始化app
 func InitApp() *InfraApp {
 	//1 配置初始化
 	conf.InitConfig()
 	_conf := conf.GetConf()
 	//2 日志初始化
 	log.InitLog()
+	log.Logger().Infof("-------log init over-------")
 	//3 consul注册
 	reg := consul.NewRegistry(func(op *registry.Options) {
 		op.Addrs = _conf.Consul.Addrs
@@ -31,14 +32,19 @@ func InitApp() *InfraApp {
 	confWatch := watch.InitConfWatch()
 	//5 init redis
 	redisMap := infraRedis.InitRedis()
+	log.Logger().Infof("-------redis init over-------")
 	//6 init broker
 	brokerIns := infraBroker.InitKafkaBroker()
+	log.Logger().Info("-------kafka init over-------")
 	//7 init trace
 	tracerIns := tracer.InitTracer()
+	log.Logger().Infof("-------tracer init over-------")
 	//8 init mysql
 	mysqlMap := mysql.InitMysql()
+	log.Logger().Infof("-------mysql init over-------")
 	//9 init mongo
 	mongoMap := mongo.InitMongo()
+	log.Logger().Infof("-------mongo init over-------")
 
 	// 初始化
 	app = &InfraApp{
@@ -57,8 +63,7 @@ func InitApp() *InfraApp {
 	return app
 }
 
-
-//卸载app
+// 卸载app
 func UnitApp() {
 	//clear mongo client
 }

@@ -19,24 +19,24 @@ import (
 	"github.com/hammercui/mega-go-micro/v2/log"
 )
 
-func InitTracer()  *go2sky.Tracer{
-	log.Logger().Infof("-------tracer init console-------")
+func InitTracer() *go2sky.Tracer {
+	log.Logger().Infof("-------tracer init start-------")
 	_conf := conf.GetConf()
-	if _conf.Tracer == nil{
+	if _conf.Tracer == nil {
 		log.Logger().Infof("trace not config")
 		return nil
 	}
-	if !_conf.Tracer.Enable{
+	if !_conf.Tracer.Enable {
 		log.Logger().Infof("trace disable")
 		return nil
 	}
-	if _conf.Tracer.TracerType == "skyWalking"{
+	if _conf.Tracer.TracerType == "skyWalking" {
 		return newSkyTracer(_conf)
 	}
 	return nil
 }
 
-//新建链路追踪实例
+// 新建链路追踪实例
 func newSkyTracer(c *conf.Config) *go2sky.Tracer {
 	webName := fmt.Sprintf("%s-%s-%s", c.App.Group, c.App.Name, c.App.Env)
 	webId := fmt.Sprintf("%s-%s", webName, c.App.NodeId)
